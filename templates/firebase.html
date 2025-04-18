@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prediction from Firebase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2em;
+    }
+
+    .result {
+      margin-top: 30px;
+      font-size: 1.2em;
+      color: #0e743c;
+    }
+
+    .error {
+      margin-top: 30px;
+      font-size: 1.2em;
+      color: #e74c3c;
+    }
+
+    .back-button {
+      margin-top: 30px;
+      padding: 12px 20px;
+      font-size: 1em;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Prediction from Firebase</h1>
+
+    <div id="prediction-result">
+      <!-- The result will be dynamically updated here -->
+    </div>
+
+    <div id="sensor-data">
+      <!-- The sensor data will be dynamically updated here -->
+    </div>
+
+    <button class="back-button" onclick="window.location.href='/';">Back to Home</button>
+  </div>
+
+  <script>
+    function fetchLatestData() {
+      fetch('/firebase_data')
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            document.getElementById('prediction-result').innerHTML = `<p><strong>Error:</strong> ${data.error}</p>`;
+            return;
+          }
+
+          // Update the prediction
+          document.getElementById('prediction-result').innerHTML = `<p><strong>Prediction:</strong> ${data.prediction}</p>`;
+
+          // Update the sensor data
+          document.getElementById('sensor-data').innerHTML = `
+            <p><strong>Methane Level:</strong> ${data.methane} ppm</p>
+            <p><strong>Temperature:</strong> ${data.temperature} °C</p>
+            <p><strong>Humidity:</strong> ${data.humidity} %</p>
+          `;
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    }
+
+    // Fetch data every 5 seconds
+    setInterval(fetchLatestData, 5000);
+
+    // Fetch the latest data immediately when the page loads
+    fetchLatestData();
+  </script>
+
+</body>
+</html>
