@@ -2,19 +2,94 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Banana Shelf Life Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #28a745; /* Green color */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result h3 {
+            font-size: 1.2rem;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h2>Upload Banana Image</h2>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="image" required>
-        <button type="submit">Predict Shelf Life</button>
-    </form>
 
-    {% if prediction %}
-        <h3>Prediction: {{ prediction }}</h3>
-    {% elif error %}
-        <h3 style="color:red;">{{ error }}</h3>
-    {% endif %}
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
+            <label for="image">Upload Banana Image:</label>
+            <input type="file" name="image" required>
+            <button type="submit">Predict Shelf Life</button>
+        </form>
+
+        {% if prediction %}
+            <div class="result">
+                <h3>Prediction: {{ prediction }}</h3>
+            </div>
+        {% elif error %}
+            <div class="result error">
+                <h3>{{ error }}</h3>
+            </div>
+        {% endif %}
+    </div>
+
 </body>
 </html>
