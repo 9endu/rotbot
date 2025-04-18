@@ -1,13 +1,18 @@
-import serial
+import os
+import numpy as np
+import datetime
+import re
 import time
+import serial
 import threading
 import firebase_admin
 from firebase_admin import credentials, db
 import joblib
-import numpy as np
-import datetime
-import re
+import torch
+from torchvision import models, transforms
 from flask import Flask, render_template, request, jsonify
+from PIL import Image
+import cv2
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -108,7 +113,6 @@ def firebase_predict():
     
     return render_template('firebase.html', error="No data available for prediction.")
 
-
 # --- Custom Prediction Page Route ---
 @app.route('/custom', methods=['GET', 'POST'])
 def custom_predict():
@@ -136,6 +140,74 @@ def custom_predict():
 
     return render_template('custom.html')
 
+# --- Image Upload and Prediction ---
+@app.route('/image_upload', methods=['GET', 'POST'])
+def image_upload():
+    if request.method == 'GET':
+        return render_template('image_upload.html')  # This template should have the upload form
+
+    if 'image' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['image']
+    
+    if file:
+        # Save the image temporarily
+        image_path = os.path.join('uploads', file.filename)
+        file.save(image_path)
+
+        # Predict
+        prediction = predict_shelf_life(image_path)
+        return jsonify({'prediction': prediction})
+
+    return jsonify({'error': 'No image found'}), 400
+
+
+def predict_shelf_life(image_path):
+    try:
+        # Load image
+        image = Image.open(image_path).convert("RGB")
+        transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
+        image_tensor = transform(image).unsqueeze(0)
+
+        # Ensure that the model is in evaluation mode
+        model.eval()
+
+        with torch.no_grad():
+            # Make prediction using the model
+            prediction = model(image_tensor)
+            print(f"Model prediction: {prediction}")  # Debugging message
+
+        # Placeholder logic for shelf life prediction based on hue
+        hue = get_dominant_hue(image_path)
+        print(f"Dominant hue: {hue}")  # Debugging message
+        
+        if hue >= 50 and hue <= 80:  # Example: Green hue range
+            return f"Green - Shelf Life: 5 to 7 days"
+        elif hue >= 25 and hue <= 50:  # Example: Yellow hue range
+            return f"Yellow - Shelf Life: 3 to 5 days"
+        elif hue >= 0 and hue <= 25:  # Example: Brown hue range
+            return f"Brown - Shelf Life: 1 to 3 days"
+        else:
+            return "Unknown hue - Shelf Life Prediction unavailable"
+
+    except Exception as e:
+        # Log the error and return a meaningful message
+        print(f"Error in prediction: {e}")
+        return "Error in prediction."
+
+def get_dominant_hue(image_path):
+    try:
+        # Convert image to HSV and compute dominant hue
+        image = cv2.imread(image_path)
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hue_hist = cv2.calcHist([hsv_image], [0], None, [256], [0, 256])
+        dominant_hue = np.argmax(hue_hist)
+        print(f"Dominant hue extracted: {dominant_hue}")  # Debugging message
+        return dominant_hue
+    except Exception as e:
+        print(f"Error in hue extraction: {e}")  # Debugging message
+        return 0  # Default value if error occurs
 
 # --- Real-Time Firebase Data Route ---
 @app.route('/firebase_data')
@@ -160,7 +232,6 @@ def firebase_data():
         })
 
     return jsonify({'error': 'No data available for prediction.'})
-
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Shelf Life Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+        }
+        video {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Banana Shelf Life Prediction</h1>
+        
+        <!-- Image Upload Form -->
+        <h3>Upload an Image</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="imageUpload" name="image" accept="image/*" required>
+            <button type="submit" class="button">Upload Image for Prediction</button>
+        </form>
+
+        <hr>
+
+        <!-- Capture Image Using Webcam -->
+        <h3>Or Capture Image Using Webcam</h3>
+        <video id="webcam" width="100%" autoplay></video>
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <button id="captureBtn" class="button">Capture Image</button>
+
+        <hr>
+
+        <!-- Prediction Result -->
+        <h3>Prediction Result</h3>
+        <p id="predictionResult">No prediction yet.</p>
+    </div>
+
+    <script>
+        // Upload Image Function
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            var file = document.getElementById('imageUpload').files[0];
+            if (!file) {
+                alert("Please select an image.");
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                var base64Image = reader.result.split(',')[1];
+
+                // Send to backend for prediction
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: base64Image
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('predictionResult').textContent = data.prediction;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('predictionResult').textContent = 'Error in prediction.';
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Webcam Capture Function
+        const webcam = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+
+        // Start webcam
+        function startWebcam() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    webcam.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error("Webcam error:", err);
+                });
+        }
+
+        // Capture and send image for prediction
+        captureBtn.addEventListener('click', function() {
+            // Draw image from webcam to canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas image to base64
+            const base64Image = canvas.toDataURL().split(',')[1];
+
+            // Send to backend for prediction
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image: base64Image
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predictionResult').textContent = data.prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('predictionResult').textContent = 'Error in prediction.';
+            });
+        });
+
+        // Start webcam on page load
+        window.onload = startWebcam;
+    </script>
+
+</body>
+</html>
