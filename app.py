@@ -27,6 +27,7 @@ firebase_admin.initialize_app(cred, {
 model = joblib.load('catboost_model.pkl')  # Adjust path to your model
 scaler = joblib.load('scaler.pkl')  # Adjust path to your scaler
 le = joblib.load('label_encoder.pkl')  # Adjust path to your label encoder
+model1=joblib.load('CatBoost_model_20250417_161111.pkl')
 
 # --- Serial Reading Thread ---
 def read_serial_and_upload():
@@ -139,6 +140,70 @@ def custom_predict():
         return jsonify({'prediction': predicted_class})
 
     return render_template('custom.html')
+
+# Add the route to serve the shelf_life_live.html
+@app.route('/shelf-life-data')
+def shelf_life_data():
+    ref = db.reference('sensor_readings')
+    data = ref.order_by_key().limit_to_last(1).get()
+
+    if data:
+        latest_data = next(iter(data.values()))  # Get the most recent data entry
+        methane = latest_data['methane']
+        temp = latest_data['temperature']
+        hum = latest_data['humidity']
+
+        prediction = predict_from_latest_data_for_shelflife()
+
+        return render_template('shelf_life_data.html', 
+                               prediction=prediction, 
+                               methane=methane, 
+                               temperature=temp, 
+                               humidity=hum)
+    
+    return render_template('shelf_life_data.html', error="No data available for prediction.")
+
+
+# Define a mapping from numeric outputs to the human-readable classes
+label_mapping = {
+    1: "Day 1 ",
+    2: "Day 2",
+    3: "Day 3",
+    4: "Day 4",
+    5: "Day 5"
+}
+
+def predict_from_latest_data_for_shelflife():
+    ref = db.reference('sensor_readings')
+    data = ref.order_by_key().limit_to_last(1).get()
+
+    if not data:
+        print("⚠️ No data found in Firebase.")
+        return None
+
+    for key in data:
+        entry = data[key]
+        methane = entry['methane']
+        temp = entry['temperature']
+        hum = entry['humidity']
+
+        print(f"📊 Latest Data - Methane: {methane}, Temp: {temp}, Humidity: {hum}")  # Log the data
+        
+        # Preprocess
+        scaled = scaler.transform([[temp, hum]])
+        input_array = np.array([[np.log1p(methane)] + list(scaled[0])])  # Apply log1p for methane
+        prediction = model1.predict(input_array)
+
+        # Ensure prediction is a scalar value (convert from ndarray if needed)
+        predicted_class = prediction[0] if isinstance(prediction, np.ndarray) else prediction
+
+        # Map numeric prediction to human-readable label
+        predicted_label = label_mapping.get(int(predicted_class), "Unknown")  # Convert to int to avoid issues with numpy types
+        
+        return predicted_label
+
+
+
 
 # --- Image Upload and Prediction ---
 @app.route('/image_upload', methods=['GET', 'POST'])

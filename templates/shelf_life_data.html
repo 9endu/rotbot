@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelf Life Prediction</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .card-header {
+            font-size: 1.25rem;
+            background-color: #007bff;
+            color: white;
+        }
+        .card-body {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Shelf Life Prediction Based on Sensor Data</h1>
+
+        <!-- Display Error Message -->
+        {% if error %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Display Sensor Data and Prediction -->
+        {% if prediction %}
+            <div class="card">
+                <div class="card-header">
+                    Latest Sensor Data
+                </div>
+                <div class="card-body">
+                    <p><strong>Methane Level:</strong> {{ methane }} ppm</p>
+                    <p><strong>Temperature:</strong> {{ temperature }} °C</p>
+                    <p><strong>Humidity:</strong> {{ humidity }} %</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    Shelf Life Prediction
+                </div>
+                <div class="card-body">
+                    <p><strong>Prediction:</strong> {{ prediction }}</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                No data available for prediction.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
