@@ -202,77 +202,86 @@ def predict_from_latest_data_for_shelflife():
         
         return predicted_label
 
+@app.route('/upload_image', methods=['GET', 'POST'])
+def upload_image():
+    if request.method == 'POST':
+        file = request.files['image']
+        if file:
+            img_path = os.path.join('uploads', file.filename)
+            file.save(img_path)
+
+            # Process Image for Banana Detection
+            image = cv2.imread(img_path)
+            model = models.detection.maskrcnn_resnet50_fpn(pretrained=True)
+            model.eval()
+
+            transform = transforms.Compose([transforms.ToTensor()])
+            image_tensor = transform(image)
+            with torch.no_grad():
+                prediction = model([image_tensor])[0]
+                # 🐛 DEBUG: Print detected classes and their scores
+                print("Detected labels:", prediction['labels'].tolist())
+                print("Scores:", prediction['scores'].tolist())
+
+            # Find Banana Class ID (COCO: banana = 52)
+            for i, label in enumerate(prediction['labels']):
+                if label.item() == 52 and prediction['scores'][i].item() > 0.4:
+                    mask = prediction['masks'][i, 0].mul(255).byte().cpu().numpy()
+                    segmented = cv2.bitwise_and(image, image, mask=mask)
+
+                    # Convert to HSV
+                    hsv = cv2.cvtColor(segmented, cv2.COLOR_BGR2HSV)
+
+                    # Define Hue ranges for each color
+                    color_ranges = {
+                        "Green": (np.array([30, 40, 40]), np.array([80, 255, 255])),
+                        "Yellow": (np.array([20, 40, 40]), np.array([30, 255, 255])),
+                        "Brown": (np.array([10, 40, 40]), np.array([20, 255, 255]))
+                    }
+
+                    # Define Shelf Life for each color
+                    shelf_life = {
+                        "Green": (7, 10),
+                        "Yellow": (3, 5),
+                        "Brown": (1, 2)
+                    }
+
+                    # ---- Compute Color Percentages ----
+                    total_pixels = hsv.size
+                    percentages = {}
+
+                    for color, (lower, upper) in color_ranges.items():
+                        mask = cv2.inRange(hsv, lower, upper)
+                        percentages[color] = (np.count_nonzero(mask) / total_pixels) * 100
+
+                    # Sort colors by percentage
+                    sorted_colors = sorted(percentages.items(), key=lambda x: x[1], reverse=True)
+
+                    # If no banana detected
+                    if sorted_colors[0][1] == 0:
+                        shelf_life_prediction = "No banana detected!"
+                    else:
+                        top_color, top_value = sorted_colors[0]
+                        second_color, second_value = sorted_colors[1]
+
+                        # Determine the shelf life prediction based on top two colors
+                        if abs(top_value - second_value) <= 5:
+                            # Average the shelf life values if the top two colors are close in percentage
+                            avg_min = (shelf_life[top_color][0] + shelf_life[second_color][0]) // 2
+                            avg_max = (shelf_life[top_color][1] + shelf_life[second_color][1]) // 2
+                            shelf_life_prediction = f"Shelf Life: {avg_min}-{avg_max} days ({top_color} & {second_color})"
+                        else:
+                            # Use the top color shelf life if the difference is large
+                            min_days, max_days = shelf_life[top_color]
+                            shelf_life_prediction = f"Shelf Life: {min_days}-{max_days} days ({top_color})"
+
+                    return render_template('image_upload.html', prediction=shelf_life_prediction, dominant_color=top_color)
+
+            return render_template('image_upload.html', error="No banana detected.")
+
+    return render_template('image_upload.html')
 
 
-
-# --- Image Upload and Prediction ---
-@app.route('/image_upload', methods=['GET', 'POST'])
-def image_upload():
-    if request.method == 'GET':
-        return render_template('image_upload.html')  # This template should have the upload form
-
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-
-    file = request.files['image']
-    
-    if file:
-        # Save the image temporarily
-        image_path = os.path.join('uploads', file.filename)
-        file.save(image_path)
-
-        # Predict
-        prediction = predict_shelf_life(image_path)
-        return jsonify({'prediction': prediction})
-
-    return jsonify({'error': 'No image found'}), 400
-
-
-def predict_shelf_life(image_path):
-    try:
-        # Load image
-        image = Image.open(image_path).convert("RGB")
-        transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
-        image_tensor = transform(image).unsqueeze(0)
-
-        # Ensure that the model is in evaluation mode
-        model.eval()
-
-        with torch.no_grad():
-            # Make prediction using the model
-            prediction = model(image_tensor)
-            print(f"Model prediction: {prediction}")  # Debugging message
-
-        # Placeholder logic for shelf life prediction based on hue
-        hue = get_dominant_hue(image_path)
-        print(f"Dominant hue: {hue}")  # Debugging message
-        
-        if hue >= 50 and hue <= 80:  # Example: Green hue range
-            return f"Green - Shelf Life: 5 to 7 days"
-        elif hue >= 25 and hue <= 50:  # Example: Yellow hue range
-            return f"Yellow - Shelf Life: 3 to 5 days"
-        elif hue >= 0 and hue <= 25:  # Example: Brown hue range
-            return f"Brown - Shelf Life: 1 to 3 days"
-        else:
-            return "Unknown hue - Shelf Life Prediction unavailable"
-
-    except Exception as e:
-        # Log the error and return a meaningful message
-        print(f"Error in prediction: {e}")
-        return "Error in prediction."
-
-def get_dominant_hue(image_path):
-    try:
-        # Convert image to HSV and compute dominant hue
-        image = cv2.imread(image_path)
-        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        hue_hist = cv2.calcHist([hsv_image], [0], None, [256], [0, 256])
-        dominant_hue = np.argmax(hue_hist)
-        print(f"Dominant hue extracted: {dominant_hue}")  # Debugging message
-        return dominant_hue
-    except Exception as e:
-        print(f"Error in hue extraction: {e}")  # Debugging message
-        return 0  # Default value if error occurs
 
 # --- Real-Time Firebase Data Route ---
 @app.route('/firebase_data')
