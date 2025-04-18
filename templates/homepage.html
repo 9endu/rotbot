@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to RotBot</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Arial', sans-serif;
+      color: #222;
+      text-align: center;
+      height: 100vh;
+      background-color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      padding: 20px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5em;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 4px solid #0a4e30;
+      width: fit-content;
+      margin: auto;
+      animation: typing 3s steps(20, end) forwards, blink 0.7s infinite;
+      color: #0e743c;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #444;
+    }
+
+    .predict-section {
+      margin-top: 30px;
+    }
+
+    .predict-btn {
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #0e743c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .predict-options {
+      margin-top: 15px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #146b4d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .option-btn:hover {
+      background-color: #1e7f5e;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Welcome to RotBot!</h1>
+    <p>See details if your fruit is rotten or not!</p>
+    <p>Get tips on storage, ripeness, and preservation.</p>
+
+    <div class="predict-section">
+      <button class="predict-btn" onclick="toggleOptions()">Predict</button>
+      <div class="predict-options" id="predictOptions">
+        <button class="option-btn" onclick="location.href='/predict'">Predict Live</button>
+        <button class="option-btn" onclick="location.href='/custom'">Predict from Custom Sensor Data</button>
+        <button class="option-btn" onclick="location.href='/firebase'">Predict Live from Database</button>
+      </div>
+      <div class="predict-section">
+        <button class="predict-btn" onclick="toggleShelfLife()">Shelf Life Prediction</button>
+        <div class="predict-options" id="shelfLifeOptions">
+          <button class="option-btn" onclick="location.href='/image_upload'">From Image</button>
+          <button class="option-btn" onclick="location.href='/shelf-life-live'">From Live Sensor Data</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Botpress Webchat Scripts -->
+  <script src="https://cdn.botpress.cloud/webchat/v2.2/inject.js"></script>
+  <script src="https://files.bpcontent.cloud/2025/02/07/12/20250207124757-UGW9GJD7.js"></script>
+
+  <script>
+    window.botpressWebChat.init({
+      composerPlaceholder: "Ask me anything about fruit freshness!",
+      botId: "YOUR_BOT_ID",
+      host: "https://cdn.botpress.cloud/webchat/v2",
+      showPoweredBy: false,
+      enableConversationDeletion: true
+    });
+
+    function toggleOptions() {
+      const options = document.getElementById("predictOptions");
+      options.style.display = options.style.display === "flex" ? "none" : "flex";
+    }
+
+    function toggleShelfLife() {
+    const options = document.getElementById("shelfLifeOptions");
+    options.style.display = options.style.display === "flex" ? "none" : "flex";
+  }
+  </script>
+
+</body>
+</html>
