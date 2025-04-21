@@ -85,12 +85,33 @@
     #captureBtn:hover {
       background-color: #0069d9;
     }
+
+    .home-btn {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  background-color: #0e743c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.home-btn:hover {
+  background-color: #09592f;
+  transform: translateX(-3px);
+}
   </style>
 </head>
 <body>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
+  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
   <div class="container">
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" method="post" enctype="multipart/form-data" autocomplete="off">
       <label for="image">Upload Banana Image:</label>
       <input type="file" name="image" id="imageInput" accept="image/*">
 
@@ -144,6 +165,20 @@
         imageInput.files = dataTransfer.files;
         alert("Image captured! You can now click 'Predict Shelf Life'.");
       }, 'image/jpeg');
+    });
+
+    // Clear input and canvas if page is restored from cache (back button)
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+        document.getElementById('imageInput').value = '';
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
+
+    // Optional: clear file input when leaving page
+    window.addEventListener('beforeunload', () => {
+      document.getElementById('imageInput').value = '';
     });
   </script>
 

@@ -24,9 +24,32 @@
         .card-body {
             font-size: 1rem;
         }
+
+.home-btn {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  background-color: #0e743c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.home-btn:hover {
+  background-color: #09592f;
+  transform: translateX(-3px);
+  color: white; /* Ensures it doesn't turn blue */
+  text-decoration: none; /* Prevents underline */
+}
     </style>
 </head>
 <body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
     <div class="container">
         <h1 class="text-center mb-4">Shelf Life Prediction Based on Sensor Data</h1>
 

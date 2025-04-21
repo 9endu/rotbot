@@ -46,6 +46,26 @@
       cursor: pointer;
     }
 
+    .home-btn {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  background-color: #0e743c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.home-btn:hover {
+  background-color: #09592f;
+  transform: translateX(-3px);
+}
+
+
     .result {
       margin-top: 25px;
       font-size: 1.2em;
@@ -54,7 +74,11 @@
   </style>
 </head>
 <body>
+<!-- Add this in <head> if not already included -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
+  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
+  
   <h1>Custom Sensor Data Prediction</h1>
   <form id="customForm">
     <input type="number" step="any" id="methane" placeholder="Methane level (ppm)" required />
