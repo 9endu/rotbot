@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #007BFF;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Button Styles */
+        .btn-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+
+        .btn-container button {
+            padding: 12px 25px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-container button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Section Styles */
+        .section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .section h2 {
+            color: #444;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 10px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Logout Button */
+        a.logout {
+            text-decoration: none;
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        a.logout:hover {
+            background-color: #a71d2a;
+        }
+
+        /* Card Layout */
+        .card {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .btn-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-container button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+    <script>
+        function toggleSection(id) {
+            const section = document.getElementById(id);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Header with Logout -->
+    <h1>Welcome, Admin <a href="{{ url_for('logout') }}" class="logout">Logout</a></h1>
+
+    <!-- Button Container -->
+    <div class="btn-container">
+        <button onclick="toggleSection('user-details')">Toggle User Details</button>
+        <button onclick="toggleSection('custom-data')">Toggle Custom Data</button>
+        <button onclick="toggleSection('firebase-data')">Toggle Firebase Data</button>
+    </div>
+
+    <!-- User Details Section -->
+    <div class="section" id="user-details">
+        <div class="card">
+            <h2>User Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Company Name</th>
+                        <th>Industry</th>
+                        <th>Location</th>
+                        <th>Contact Name</th>
+                        <th>Phone</th>
+                        <th>Password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for uid, info in users.items() %}
+                        <tr>
+                            <td>{{ uid }}</td>
+                            <td>{{ info.get('company_name', 'N/A') }}</td>
+                            <td>{{ info.get('industry', 'N/A') }}</td>
+                            <td>{{ info.get('location', 'N/A') }}</td>
+                            <td>{{ info.get('name', 'N/A') }}</td>
+                            <td>{{ info.get('phone', 'N/A') }}</td>
+                            <td>{{ info.get('password', 'N/A') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Custom Data Section -->
+    <div class="section" id="custom-data">
+        <div class="card">
+            <h2>Custom Data (Per User)</h2>
+            {% for uid, info in users.items() %}
+                {% if info.history and info.history.custom_data %}
+                    <h3>{{ uid }}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Temperature</th>
+                                <th>Humidity</th>
+                                <th>Methane</th>
+                                <th>Output</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry_id, entry in info.history.custom_data.items() %}
+                                <tr>
+                                    <td>{{ entry_id }}</td>
+                                    <td>{{ entry.temperature }}</td>
+                                    <td>{{ entry.humidity }}</td>
+                                    <td>{{ entry.methane }}</td>
+                                    <td>{{ entry.output }}</td>
+                                    <td>{{ entry.timestamp }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Firebase Data Section -->
+    <div class="section" id="firebase-data">
+        <div class="card">
+            <h2>Firebase Data (Per User)</h2>
+            {% for uid, info in users.items() %}
+                {% if info.history and info.history.firebase_data %}
+                    <h3>{{ uid }}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Temperature</th>
+                                <th>Humidity</th>
+                                <th>Methane</th>
+                                <th>Output</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry_id, entry in info.history.firebase_data.items() %}
+                                <tr>
+                                    <td>{{ entry_id }}</td>
+                                    <td>{{ entry.temperature }}</td>
+                                    <td>{{ entry.humidity }}</td>
+                                    <td>{{ entry.methane }}</td>
+                                    <td>{{ entry.output }}</td>
+                                    <td>{{ entry.timestamp }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

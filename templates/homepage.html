@@ -59,6 +59,26 @@
       cursor: pointer;
     }
 
+    /* Fixed Track History Button Styling */
+.track-history-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 12px 24px;
+  font-size: 1em;
+  background-color: #ffff;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000; /* Ensure it stays on top */
+}
+
+.track-history-btn:hover {
+  background-color: #bab9b7;
+}
+
+
     .predict-options {
       margin-top: 15px;
       display: none;
@@ -134,7 +154,8 @@
           <button class="option-btn" onclick="location.href='/shelf-life-data'">From Live Sensor Data</button>
         </div>
       </div>
-      
+      <!-- New Track History Button -->
+      <button class="track-history-btn" onclick="location.href='/track_history'">Track Your History</button>
     </div>
   </div>
 

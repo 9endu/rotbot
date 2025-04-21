@@ -19,6 +19,10 @@ import cv2
 app = Flask(__name__)
 app.secret_key ='a3443ca5af1d56ae7bd937cc8d2c462d'
 
+ADMIN_EMAIL = 'admin@example.com'
+ADMIN_PASSWORD = 'adminpass'
+
+
 # Firebase Initialization
 cred = credentials.Certificate("firebase/rotbot-b300b-firebase-adminsdk-fbsvc-3b9c6a4580.json")
 firebase_admin.initialize_app(cred, {
@@ -126,21 +130,27 @@ def login():
         password = request.form['password']
         email_key = email.replace('.', ',')
 
+        # Check if admin
+        if email == 'admin@example.com' and password == 'adminpass':
+            session['admin'] = True
+            return redirect('/admin')
+
+        # Check regular user
         ref = db.reference(f'companies/{email_key}')
         user_data = ref.get()
 
         if user_data:
             if user_data['password'] == password:
-                # Store the user's email and name in the session
                 session['user'] = user_data['email']
-                session['name'] = user_data['name']  # Store name in session as well
-                return redirect('/homepage')  # Redirect to homepage after successful login
+                session['name'] = user_data['name']
+                return redirect('/homepage')
             else:
                 error = "Incorrect password"
         else:
             error = "User does not exist"
 
     return render_template('login.html', error=error)
+
 
 @app.route('/homepage')
 def homepage():
@@ -157,6 +167,34 @@ def logout():
     session.pop('name', None)  # Remove the name from session as well
     return redirect('/login')  # Redirect to the login page
 
+@app.route('/admin')
+def admin():
+    # Ensure the admin is logged in
+    if not session.get('admin'):
+        return redirect('/login')
+
+    try:
+        # Get Firebase references
+        user_ref = db.reference('companies')
+        custom_data_ref = db.reference('custom_data')
+        firebase_data_ref = db.reference('firebase_data')
+
+        # Fetch data or return empty dicts if nothing exists
+        users = user_ref.get() or {}
+        custom_data = custom_data_ref.get() or {}
+        firebase_data = firebase_data_ref.get() or {}
+
+        # Render admin dashboard with all data
+        return render_template(
+            'admin.html',
+            users=users,
+            custom_data=custom_data,
+            firebase_data=firebase_data
+        )
+
+    except Exception as e:
+        print(f"Error fetching admin data: {e}")
+        return "An error occurred while loading admin data.", 500
 
 # --- Firebase Prediction Route ---
 from flask import session, render_template
@@ -215,6 +253,36 @@ def firebase_predict():
 
     return render_template('firebase.html', error="No data available for prediction.")
 
+@app.route('/track_history')
+def track_history():
+    # Ensure the user is logged in
+    if not session.get('user'):
+        return redirect('/login')
+
+    user_email = session['user'].replace('.', ',')  # Match Firebase format
+
+    try:
+        # Get Firebase references
+        user_ref = db.reference(f'companies/{user_email}')  # Get user-specific data
+        user_data = user_ref.get()
+
+        if user_data:
+            custom_data = user_data.get('history', {}).get('custom_data', {})
+            firebase_data = user_data.get('history', {}).get('firebase_data', {})
+        else:
+            custom_data = {}
+            firebase_data = {}
+
+        # Render track history page with user-specific data
+        return render_template(
+            'track_history.html',
+            custom_data=custom_data,
+            firebase_data=firebase_data
+        )
+
+    except Exception as e:
+        print(f"Error fetching history data: {e}")
+        return "An error occurred while loading history data.", 500
 
 # --- Custom Prediction Page Route ---
 @app.route('/custom', methods=['GET', 'POST'])
