@@ -7,8 +7,8 @@
     <style>
         /* General Styles */
         body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
             margin: 0;
             padding: 0;
         }
@@ -18,30 +18,49 @@
             font-size: 24px;
             margin-bottom: 20px;
             padding: 20px;
-            background-color: #007BFF;
-            color: white;
+            background-color: transparent; /* Remove blue background */
+            color: #333;
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* Center all content */
             align-items: center;
+            position: relative; /* Position logout button */
+        }
+
+        h1 a.logout {
+            position: absolute; /* Position logout button to the far right */
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #dc3545;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        h1 a.logout:hover {
+            background-color: #a71d2a;
         }
 
         /* Button Styles */
         .btn-container {
-            margin: 20px 0;
+            margin: 30px 0;
             display: flex;
-            justify-content: flex-start;
-            gap: 15px;
+            justify-content: space-evenly;
+            gap: 20px;
         }
 
         .btn-container button {
-            padding: 12px 25px;
-            background-color: #007BFF;
+            padding: 12px 20px;
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         .btn-container button:hover {
@@ -52,13 +71,14 @@
         /* Section Styles */
         .section {
             display: none;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .section h2 {
-            color: #444;
+            font-size: 24px;
+            color: #333;
             margin-bottom: 15px;
-            border-bottom: 2px solid #007BFF;
+            border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
         }
 
@@ -66,55 +86,60 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
             border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         th, td {
-            padding: 15px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #007BFF;
+            background-color: #007bff;
             color: white;
         }
 
         tr:hover {
-            background-color: #f1f1f1;
+            background-color: #f7f7f7;
         }
 
-        /* Logout Button */
-        a.logout {
-            text-decoration: none;
-            background-color: #dc3545;
-            color: white;
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .search-input {
             padding: 8px 15px;
+            margin: 10px;
             border-radius: 5px;
+            border: 1px solid #ccc;
             font-size: 14px;
-            transition: background-color 0.3s ease;
         }
 
-        a.logout:hover {
-            background-color: #a71d2a;
+        .filter-btn {
+            margin: 10px;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        /* Card Layout */
-        .card {
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+        .filter-btn:hover {
+            background-color: #0056b3;
         }
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             h1 {
-                font-size: 20px;
+                font-size: 24px;
                 flex-direction: column;
                 text-align: center;
             }
@@ -128,12 +153,55 @@
                 width: 100%;
                 margin-bottom: 10px;
             }
+
+            .search-input {
+                width: 80%;
+                margin: 10px auto;
+            }
         }
     </style>
     <script>
         function toggleSection(id) {
             const section = document.getElementById(id);
-            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            section.style.display = section.style.display === 'none' || section.style.display === '' ? 'block' : 'none';
+        }
+
+        function filterTable(inputId, tableId) {
+            const filter = document.getElementById(inputId).value.toLowerCase();
+            const table = document.getElementById(tableId);
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].getElementsByTagName('td');
+                let matched = false;
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].textContent.toLowerCase().includes(filter)) {
+                        matched = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = matched ? '' : 'none';
+            }
+        }
+
+        function sortTable(columnIndex, tableId) {
+            const table = document.getElementById(tableId);
+            const rows = Array.from(table.rows).slice(1);
+            const isAscending = table.getAttribute('data-sort') === 'asc';
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].textContent.trim();
+                const cellB = rowB.cells[columnIndex].textContent.trim();
+
+                if (isNaN(cellA) || isNaN(cellB)) {
+                    return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+                }
+                return isAscending ? cellA - cellB : cellB - cellA;
+            });
+
+            rows.forEach(row => table.appendChild(row));
+
+            table.setAttribute('data-sort', isAscending ? 'desc' : 'asc');
         }
     </script>
 </head>
@@ -153,15 +221,18 @@
     <div class="section" id="user-details">
         <div class="card">
             <h2>User Details</h2>
-            <table>
+            <div class="search-container">
+                <input type="text" id="user-search" class="search-input" onkeyup="filterTable('user-search', 'user-details-table')" placeholder="Search User Details...">
+            </div>
+            <table id="user-details-table">
                 <thead>
                     <tr>
-                        <th>Email</th>
-                        <th>Company Name</th>
-                        <th>Industry</th>
-                        <th>Location</th>
-                        <th>Contact Name</th>
-                        <th>Phone</th>
+                        <th onclick="sortTable(0, 'user-details-table')">Email</th>
+                        <th onclick="sortTable(1, 'user-details-table')">Company Name</th>
+                        <th onclick="sortTable(2, 'user-details-table')">Industry</th>
+                        <th onclick="sortTable(3, 'user-details-table')">Location</th>
+                        <th onclick="sortTable(4, 'user-details-table')">Contact Name</th>
+                        <th onclick="sortTable(5, 'user-details-table')">Phone</th>
                         <th>Password</th>
                     </tr>
                 </thead>
@@ -186,18 +257,21 @@
     <div class="section" id="custom-data">
         <div class="card">
             <h2>Custom Data (Per User)</h2>
+            <div class="search-container">
+                <input type="text" id="custom-search" class="search-input" onkeyup="filterTable('custom-search', 'custom-data-table')" placeholder="Search Custom Data...">
+            </div>
             {% for uid, info in users.items() %}
                 {% if info.history and info.history.custom_data %}
                     <h3>{{ uid }}</h3>
-                    <table>
+                    <table id="custom-data-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Temperature</th>
-                                <th>Humidity</th>
-                                <th>Methane</th>
-                                <th>Output</th>
-                                <th>Timestamp</th>
+                                <th onclick="sortTable(0, 'custom-data-table')">ID</th>
+                                <th onclick="sortTable(1, 'custom-data-table')">Temperature</th>
+                                <th onclick="sortTable(2, 'custom-data-table')">Humidity</th>
+                                <th onclick="sortTable(3, 'custom-data-table')">Methane</th>
+                                <th onclick="sortTable(4, 'custom-data-table')">Output</th>
+                                <th onclick="sortTable(5, 'custom-data-table')">Timestamp</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -222,18 +296,21 @@
     <div class="section" id="firebase-data">
         <div class="card">
             <h2>Firebase Data (Per User)</h2>
+            <div class="search-container">
+                <input type="text" id="firebase-search" class="search-input" onkeyup="filterTable('firebase-search', 'firebase-data-table')" placeholder="Search Firebase Data...">
+            </div>
             {% for uid, info in users.items() %}
                 {% if info.history and info.history.firebase_data %}
                     <h3>{{ uid }}</h3>
-                    <table>
+                    <table id="firebase-data-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Temperature</th>
-                                <th>Humidity</th>
-                                <th>Methane</th>
-                                <th>Output</th>
-                                <th>Timestamp</th>
+                                <th onclick="sortTable(0, 'firebase-data-table')">ID</th>
+                                <th onclick="sortTable(1, 'firebase-data-table')">Temperature</th>
+                                <th onclick="sortTable(2, 'firebase-data-table')">Humidity</th>
+                                <th onclick="sortTable(3, 'firebase-data-table')">Methane</th>
+                                <th onclick="sortTable(4, 'firebase-data-table')">Output</th>
+                                <th onclick="sortTable(5, 'firebase-data-table')">Timestamp</th>
                             </tr>
                         </thead>
                         <tbody>
