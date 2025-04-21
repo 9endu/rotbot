@@ -159,7 +159,13 @@ def logout():
 
 
 # --- Firebase Prediction Route ---
-@app.route('/firebase')
+from flask import session, render_template
+import datetime
+import firebase_admin
+from firebase_admin import credentials, db
+
+# --- Firebase Prediction Route ---
+@app.route('/firebase', methods=['GET', 'POST'])
 def firebase_predict():
     prediction = predict_from_latest_data()
 
@@ -167,16 +173,48 @@ def firebase_predict():
         # Fetch the latest sensor data from Firebase
         ref = db.reference('sensor_readings')
         data = ref.order_by_key().limit_to_last(1).get()
-        
+
         if data:
-            latest_data = next(iter(data.values()))  # Get the most recent data entry
+            latest_data = next(iter(data.values()))
             methane = latest_data['methane']
             temp = latest_data['temperature']
             hum = latest_data['humidity']
 
+            # Get the logged-in user's email
+            user_email = session.get('user')
+            if not user_email:
+                return render_template('firebase.html', error="User not logged in")
+
+            email_key = user_email.replace('.', ',')  # Firebase key-friendly format
+
+            # Reference to user's firebase_data history
+            data_ref = db.reference(f'companies/{email_key}/history/firebase_data')
+
+            # Check the last saved entry
+            existing_entries = data_ref.order_by_key().limit_to_last(1).get()
+            if existing_entries:
+                last_entry = next(iter(existing_entries.values()))
+                if (last_entry['methane'] == methane and
+                    last_entry['temperature'] == temp and
+                    last_entry['humidity'] == hum):
+                    # No change in data, do not log again
+                    return render_template('firebase.html', prediction=prediction, methane=methane, temperature=temp, humidity=hum)
+
+            # New data detected — log it
+            prediction_data = {
+                "methane": methane,
+                "temperature": temp,
+                "humidity": hum,
+                "output": prediction,
+                "timestamp": datetime.datetime.now().isoformat()
+            }
+
+            data_ref.push(prediction_data)  # Push new prediction entry
+
             return render_template('firebase.html', prediction=prediction, methane=methane, temperature=temp, humidity=hum)
-    
+
     return render_template('firebase.html', error="No data available for prediction.")
+
 
 # --- Custom Prediction Page Route ---
 @app.route('/custom', methods=['GET', 'POST'])
@@ -290,6 +328,7 @@ def predict_from_latest_data_for_shelflife():
         predicted_label = label_mapping.get(int(predicted_class), "Unknown")  # Convert to int to avoid issues with numpy types
         
         return predicted_label
+
 
 @app.route('/upload_image', methods=['GET', 'POST'])
 def upload_image():
