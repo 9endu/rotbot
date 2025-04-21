@@ -23,6 +23,7 @@
     .container {
       max-width: 800px;
       padding: 20px;
+      width: 100%;
     }
 
     h1 {
@@ -32,7 +33,7 @@
       white-space: nowrap;
       overflow: hidden;
       border-right: 4px solid #0a4e30;
-      width: fit-content;
+      width: auto;
       margin: auto;
       animation: typing 3s steps(20, end) forwards, blink 0.7s infinite;
       color: #0e743c;
@@ -88,12 +89,35 @@
     @keyframes blink {
       50% { border-color: transparent; }
     }
+
+    /* Fixed Logout Button Styling */
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: #d9534f;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000; /* Ensure it stays on top */
+    }
+
+    .logout-btn:hover {
+      background-color: #c9302c;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>Welcome to RotBot!</h1>
+    {% if user %}
+      <h1>Welcome to RotBot, {{ name }}!</h1> <!-- User's name -->
+      <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a> <!-- Logout link -->
+    {% else %}
+      <h1>Welcome to RotBot!</h1>
+    {% endif %}
     <p>See details if your fruit is rotten or not!</p>
     <p>Get tips on storage, ripeness, and preservation.</p>
 
@@ -133,9 +157,9 @@
     }
 
     function toggleShelfLife() {
-    const options = document.getElementById("shelfLifeOptions");
-    options.style.display = options.style.display === "flex" ? "none" : "flex";
-  }
+      const options = document.getElementById("shelfLifeOptions");
+      options.style.display = options.style.display === "flex" ? "none" : "flex";
+    }
   </script>
 
 </body>

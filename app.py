@@ -6,6 +6,7 @@ import time
 import serial
 import threading
 import firebase_admin
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from firebase_admin import credentials, db
 import joblib
 import torch
@@ -16,6 +17,7 @@ import cv2
 
 # Initialize Flask app
 app = Flask(__name__)
+app.secret_key ='a3443ca5af1d56ae7bd937cc8d2c462d'
 
 # Firebase Initialization
 cred = credentials.Certificate("firebase/rotbot-b300b-firebase-adminsdk-fbsvc-3b9c6a4580.json")
@@ -88,11 +90,73 @@ def predict_from_latest_data():
         predicted_class = le.inverse_transform(prediction)[0]
 
         return predicted_class
-
-# --- Home Route ---
 @app.route('/')
 def home():
-    return render_template('homepage.html')
+    # If user is logged in, redirect to homepage, else show login page
+    if 'user' in session:
+        return redirect('/homepage')
+    else:
+        return redirect('/login')  # Redirect to login page if not logged in
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        data = {
+            "company_name": request.form['company_name'],
+            "industry": request.form['industry'],
+            "location": request.form['location'],
+            "name": request.form['name'],
+            "email": request.form['email'],
+            "phone": request.form['phone'],
+            "password": request.form['password']
+        }
+
+        email_key = data['email'].replace('.', ',')
+        ref = db.reference('companies')
+        ref.child(email_key).set(data)
+
+        return redirect('/login')  # Redirect to login page after signup
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        email_key = email.replace('.', ',')
+
+        ref = db.reference(f'companies/{email_key}')
+        user_data = ref.get()
+
+        if user_data:
+            if user_data['password'] == password:
+                # Store the user's email and name in the session
+                session['user'] = user_data['email']
+                session['name'] = user_data['name']  # Store name in session as well
+                return redirect('/homepage')  # Redirect to homepage after successful login
+            else:
+                error = "Incorrect password"
+        else:
+            error = "User does not exist"
+
+    return render_template('login.html', error=error)
+
+@app.route('/homepage')
+def homepage():
+    if 'user' in session:
+        # Pass the user's name from the session to the template
+        return render_template('homepage.html', user=session['user'], name=session['name'])
+    else:
+        return redirect('/login')  # Redirect to login if not logged in
+    
+@app.route('/logout')
+def logout():
+    # Clear the session to log the user out
+    session.pop('user', None)
+    session.pop('name', None)  # Remove the name from session as well
+    return redirect('/login')  # Redirect to the login page
+
 
 # --- Firebase Prediction Route ---
 @app.route('/firebase')
@@ -137,9 +201,34 @@ def custom_predict():
         # Log prediction
         print(f"Prediction: {predicted_class}")
 
+        # Get user email from session
+        user_email = session.get('user')
+        email_key = user_email.replace('.', ',')  # Firebase does not allow '.' in keys
+        
+        # Check if the 'history' node exists, if not, create it
+        ref = db.reference(f'companies/{email_key}/history')
+        if ref.get() is None:  # If 'history' does not exist, create it
+            ref.set({
+                'custom_data': []  # Create an empty list for custom data
+            })
+
+        # Prepare data for saving to Firebase
+        prediction_data = {
+            "methane": data['methane'],  # Original methane value
+            "temperature": temperature,
+            "humidity": humidity,
+            "output": predicted_class,
+            "timestamp": datetime.datetime.now().isoformat()  # Current timestamp
+        }
+
+        # Save the prediction data to Firebase under the user's history
+        ref = db.reference(f'companies/{email_key}/history/custom_data')
+        ref.push(prediction_data)
+
         return jsonify({'prediction': predicted_class})
 
     return render_template('custom.html')
+
 
 # Add the route to serve the shelf_life_live.html
 @app.route('/shelf-life-data')
