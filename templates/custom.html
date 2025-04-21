@@ -3,91 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Custom Sensor Prediction - RotBot</title>
+  <title>RotBot Sensor Prediction</title>
+
+  <!-- Font and Icon Links -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f7f7f7;
-      padding: 40px;
+      margin: 0;
+      height: 100vh;
+      background: #040d0d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+
+    .glow-box {
+      background: rgba(22, 22, 22, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: 0 0 25px rgba(0, 255, 170, 0.2), 0 0 45px rgba(0, 255, 170, 0.05);
+      width: 400px;
       text-align: center;
+      animation: fadeIn 1s ease-in-out;
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     h1 {
-      color: #0e743c;
-      font-family: 'Orbitron', sans-serif;
-    }
-
-    form {
-      margin-top: 30px;
-      display: inline-block;
-      background-color: #ffffff;
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      color: #00ffcc;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      text-shadow: 0 0 10px #00ffcc;
     }
 
     input {
-      margin: 10px 0;
-      padding: 10px;
       width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
       font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      background: #f1f1f1;
+      color: #000;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+      transition: 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa;
     }
 
     button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background-color: #0e743c;
-      color: white;
-      border: none;
-      border-radius: 8px;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
       font-size: 1em;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00ffaa, #00cc88);
+      color: #000;
       cursor: pointer;
+      box-shadow: 0 0 12px #00ffaa;
+      transition: all 0.3s ease;
     }
 
-    .home-btn {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  background-color: #0e743c;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.home-btn:hover {
-  background-color: #09592f;
-  transform: translateX(-3px);
-}
-
+    button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 18px #00ffaa, 0 0 30px #00ffaa;
+    }
 
     .result {
-      margin-top: 25px;
-      font-size: 1.2em;
-      color: #222;
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      font-size: 1.1em;
+      color: #00ffaa;
+      text-shadow: 0 0 5px #00ffaa;
+    }
+
+    .custom-wrapper .home-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #0e743c;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .custom-wrapper .home-btn:hover {
+      background-color: #09592f;
+      transform: translateX(-3px);
     }
   </style>
 </head>
 <body>
-<!-- Add this in <head> if not already included -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
-  
-  <h1>Custom Sensor Data Prediction</h1>
-  <form id="customForm">
-    <input type="number" step="any" id="methane" placeholder="Methane level (ppm)" required />
-    <input type="number" step="any" id="temperature" placeholder="Temperature (°C)" required />
-    <input type="number" step="any" id="humidity" placeholder="Humidity (%)" required />
-    <button type="submit">Predict</button>
-  </form>
+  <div class="custom-wrapper">
+    <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
 
-  <div class="result" id="result"></div>
+    <div class="glow-box">
+      <h1>Custom Sensor Prediction</h1>
+      <form id="customForm">
+        <input type="number" step="any" id="methane" placeholder="Methane level (ppm)" required />
+        <input type="number" step="any" id="temperature" placeholder="Temperature (°C)" required />
+        <input type="number" step="any" id="humidity" placeholder="Humidity (%)" required />
+        <button type="submit">Predict</button>
+      </form>
+      <div class="result" id="result" style="display: none;"></div>
+    </div>
+  </div>
 
   <script>
     document.getElementById("customForm").addEventListener("submit", async function(e) {
@@ -103,7 +153,10 @@
       });
 
       const data = await response.json();
-      document.getElementById("result").innerText = "Predicted Freshness Status: " + data.prediction;
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "Predicted Freshness Status: " + data.prediction;
+      resultDiv.style.display = 'block';
     });
   </script>
 
