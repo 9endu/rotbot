@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import torch
+import pyrebase
 from torchvision import models, transforms
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory
@@ -33,6 +34,24 @@ cred = credentials.Certificate("firebase/rotbot-b300b-firebase-adminsdk-fbsvc-3b
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://rotbot-b300b-default-rtdb.firebaseio.com/'
 })
+
+firebaseConfig = {
+    "apiKey": "AIzaSyAOk65Mg_P1ISLbGRB6I-3HDL-U-hCFO-c",
+    "authDomain": "rotbot-b300b.firebaseapp.com",
+    "databaseURL": "https://rotbot-b300b-default-rtdb.firebaseio.com",
+    "projectId": "rotbot-b300b",
+    "storageBucket": "rotbot-b300b.appspot.com",
+    "messagingSenderId": "1022382810982",
+    "appId": "1:1022382810982:web:cb0f1a631f857de4a18aa7",
+    "measurementId": "G-B6S4DC2L03"
+}
+
+import pyrebase
+
+firebase = pyrebase.initialize_app(firebaseConfig)
+auth = firebase.auth()
+db = firebase.database()
+
 
 # Load ML Model, Scaler, and Label Encoder
 model = joblib.load('catboost_model.pkl')  # Adjust path to your model
@@ -126,6 +145,50 @@ def signup():
 
         return redirect('/login')  # Redirect to login page after signup
     return render_template('signup.html')
+
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        # Access the 'companies' node in the Firebase Realtime Database
+        companies_ref = db.reference('companies')  
+        companies = companies_ref.get()  # Get all companies data
+
+        # Iterate through the companies to check if the email exists
+        for company_key, company_data in companies.items():
+            if company_data.get('email') == email:
+                return render_template('reset_password.html', email=email)
+
+        return "Email not found. Try again."
+
+    return render_template('forgot_password.html')
+
+
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    email = request.form['email']
+    new_password = request.form['new_password']
+
+    # Access the 'companies' node in the Firebase Realtime Database
+    companies_ref = db.reference('companies')
+    companies = companies_ref.get()  # Get all companies data
+
+    # Iterate through the companies to find the email and update the password
+    for company_key, company_data in companies.items():
+        if company_data.get('email') == email:
+            # Update the password for the company
+            company_ref = companies_ref.child(company_key)  # Reference to the specific company
+            company_ref.update({
+                "password": new_password
+            })
+
+            # Redirect to login.html with a success message
+            return redirect(url_for('login', success_message="Password updated successfully"))
+
+    return "Something went wrong."
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -340,29 +403,50 @@ def custom_predict():
 
     return render_template('custom.html')
 
-
-# Add the route to serve the shelf_life_live.html
 @app.route('/shelf-life-data')
 def shelf_life_data():
     ref = db.reference('sensor_readings')
     data = ref.order_by_key().limit_to_last(1).get()
 
     if data:
-        latest_data = next(iter(data.values()))  # Get the most recent data entry
+        latest_data = next(iter(data.values()))
         methane = latest_data['methane']
         temp = latest_data['temperature']
         hum = latest_data['humidity']
 
         prediction = predict_from_latest_data_for_shelflife()
 
+        # Get user email from session
+        user_email = session.get('user')
+        if user_email:
+            email_key = user_email.replace('.', ',')
+            history_ref = db.reference(f'companies/{email_key}/history')
+
+            if history_ref.get() is None:
+                history_ref.set({
+                    'shelf_life_data': []  # Create empty list for shelf life data
+                })
+
+            # Prepare data for saving
+            prediction_data = {
+                "methane": methane,
+                "temperature": temp,
+                "humidity": hum,
+                "output": prediction,
+                "timestamp": datetime.datetime.now().isoformat()
+            }
+
+            # Save to Firebase under shelf_life_data
+            data_ref = db.reference(f'companies/{email_key}/history/shelf_life_data')
+            data_ref.push(prediction_data)
+
         return render_template('shelf_life_data.html', 
                                prediction=prediction, 
                                methane=methane, 
                                temperature=temp, 
                                humidity=hum)
-    
-    return render_template('shelf_life_data.html', error="No data available for prediction.")
 
+    return render_template('shelf_life_data.html', error="No data available for prediction.")
 
 # Define a mapping from numeric outputs to the human-readable classes
 label_mapping = {

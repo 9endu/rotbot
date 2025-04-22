@@ -315,8 +315,7 @@
             <button class="tab-btn active" onclick="showSection('user-details')">User Details</button>
             <button class="tab-btn" onclick="showSection('custom-data')">Custom Data</button>
             <button class="tab-btn" onclick="showSection('firebase-data')">Firebase Data</button>
-            <button class="tab-btn" onclick="showSection('firebase-data')">Shelf Life Data</button>
-
+            <button class="tab-btn" onclick="showSection('shelf-data')">Shelf Life Data</button>
         </div>
 
         <!-- User Details Section -->
@@ -336,7 +335,6 @@
                             <th class="sortable" onclick="sortTable(3, 'user-details-table')">Location</th>
                             <th class="sortable" onclick="sortTable(4, 'user-details-table')">Contact</th>
                             <th class="sortable" onclick="sortTable(5, 'user-details-table')">Phone</th>
-                            <th>Password</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -348,7 +346,6 @@
                                 <td>{{ info.get('location', 'N/A') }}</td>
                                 <td>{{ info.get('name', 'N/A') }}</td>
                                 <td>{{ info.get('phone', 'N/A') }}</td>
-                                <td>••••••••</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -419,6 +416,46 @@
                             </thead>
                             <tbody>
                                 {% for entry_id, entry in info.history.firebase_data.items() %}
+                                    <tr>
+                                        <td>{{ entry_id }}</td>
+                                        <td>{{ entry.temperature }}</td>
+                                        <td>{{ entry.humidity }}</td>
+                                        <td>{{ entry.methane }}</td>
+                                        <td>{{ entry.output }}</td>
+                                        <td>{{ entry.timestamp }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Shelf Life Data Section -->
+        <div id="shelf-data" class="section">
+            <div class="section-header">
+                <h2 class="section-title">Shelf Life Data Records</h2>
+            </div>
+            
+            {% for uid, info in users.items() %}
+                {% if info.history and info.history.shelf_life_data %}
+                    <div class="user-badge">{{ uid }}</div>
+                    <div class="table-container">
+                        <table id="shelf-data-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" onclick="sortTable(0, 'shelf-data-table')">ID</th>
+                                    <th class="sortable" onclick="sortTable(1, 'shelf-data-table')">Temp (°C)</th>
+                                    <th class="sortable" onclick="sortTable(2, 'shelf-data-table')">Humidity</th>
+                                    <th class="sortable" onclick="sortTable(3, 'shelf-data-table')">Methane</th>
+                                    <th class="sortable" onclick="sortTable(4, 'shelf-data-table')">Output</th>
+                                    <th class="sortable" onclick="sortTable(5, 'shelf-data-table', 'timestamp')">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry_id, entry in info.history.shelf_life_data.items() %}
                                     <tr>
                                         <td>{{ entry_id }}</td>
                                         <td>{{ entry.temperature }}</td>
