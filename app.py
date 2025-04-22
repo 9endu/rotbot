@@ -1,19 +1,24 @@
 import os
-import numpy as np
-import datetime
-import re
 import time
-import serial
-import threading
-import firebase_admin
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
-from firebase_admin import credentials, db
-import joblib
+import cv2
+import numpy as np
+from PIL import Image
 import torch
 from torchvision import models, transforms
-from flask import Flask, render_template, request, jsonify
-from PIL import Image
-import cv2
+
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+
+# Firebase (if used elsewhere in your app)
+import firebase_admin
+from firebase_admin import credentials, db
+
+# Optional utilities (if you still use them in your app)
+import datetime
+import re
+import serial
+import threading
+import joblib
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -397,83 +402,94 @@ def predict_from_latest_data_for_shelflife():
         
         return predicted_label
 
-
 @app.route('/upload_image', methods=['GET', 'POST'])
 def upload_image():
     if request.method == 'POST':
-        file = request.files['image']
-        if file:
-            img_path = os.path.join('uploads', file.filename)
-            file.save(img_path)
+        file = request.files.get('image')
+        if not file or file.filename == '':
+            return render_template('image_upload.html', error="No file selected.")
 
-            # Process Image for Banana Detection
-            image = cv2.imread(img_path)
-            model = models.detection.maskrcnn_resnet50_fpn(pretrained=True)
-            model.eval()
+        img_path = os.path.join('uploads', file.filename)
+        file.save(img_path)
 
-            transform = transforms.Compose([transforms.ToTensor()])
+        # Read and validate image
+        image = cv2.imread(img_path)
+        if image is None:
+            return render_template('image_upload.html', error="Invalid image. Please try again.")
+
+        # Start timer
+        start_time = time.time()
+
+        # Load model
+        model = models.detection.maskrcnn_resnet50_fpn(pretrained=True)
+        model.eval()
+
+        # Transform and predict
+        transform = transforms.Compose([transforms.ToTensor()])
+        try:
             image_tensor = transform(image)
-            with torch.no_grad():
-                prediction = model([image_tensor])[0]
-                # 🐛 DEBUG: Print detected classes and their scores
-                print("Detected labels:", prediction['labels'].tolist())
-                print("Scores:", prediction['scores'].tolist())
+        except Exception as e:
+            return render_template('image_upload.html', error="Error processing image.")
+        with torch.no_grad():
+            prediction = model([image_tensor])[0]
+        print("Detected labels:", prediction['labels'].tolist())
+        print("Scores:", prediction['scores'].tolist())
 
-            # Find Banana Class ID (COCO: banana = 52)
-            for i, label in enumerate(prediction['labels']):
-                if label.item() == 52 and prediction['scores'][i].item() > 0.4:
-                    mask = prediction['masks'][i, 0].mul(255).byte().cpu().numpy()
-                    segmented = cv2.bitwise_and(image, image, mask=mask)
+        for i, label in enumerate(prediction['labels']):
+            if label.item() == 52 and prediction['scores'][i].item() > 0.4:
+                mask = prediction['masks'][i, 0].mul(255).byte().cpu().numpy()
+                segmented = cv2.bitwise_and(image, image, mask=mask)
+                hsv = cv2.cvtColor(segmented, cv2.COLOR_BGR2HSV)
 
-                    # Convert to HSV
-                    hsv = cv2.cvtColor(segmented, cv2.COLOR_BGR2HSV)
+                color_ranges = {
+                    "Green": (np.array([30, 40, 40]), np.array([80, 255, 255])),
+                    "Yellow": (np.array([20, 40, 40]), np.array([30, 255, 255])),
+                    "Brown": (np.array([10, 40, 40]), np.array([20, 255, 255]))
+                }
 
-                    # Define Hue ranges for each color
-                    color_ranges = {
-                        "Green": (np.array([30, 40, 40]), np.array([80, 255, 255])),
-                        "Yellow": (np.array([20, 40, 40]), np.array([30, 255, 255])),
-                        "Brown": (np.array([10, 40, 40]), np.array([20, 255, 255]))
-                    }
+                shelf_life = {
+                    "Green": (7, 10),
+                    "Yellow": (3, 5),
+                    "Brown": (1, 2)
+                }
 
-                    # Define Shelf Life for each color
-                    shelf_life = {
-                        "Green": (7, 10),
-                        "Yellow": (3, 5),
-                        "Brown": (1, 2)
-                    }
+                total_pixels = hsv.size
+                percentages = {}
 
-                    # ---- Compute Color Percentages ----
-                    total_pixels = hsv.size
-                    percentages = {}
+                for color, (lower, upper) in color_ranges.items():
+                    mask = cv2.inRange(hsv, lower, upper)
+                    percentages[color] = (np.count_nonzero(mask) / total_pixels) * 100
 
-                    for color, (lower, upper) in color_ranges.items():
-                        mask = cv2.inRange(hsv, lower, upper)
-                        percentages[color] = (np.count_nonzero(mask) / total_pixels) * 100
+                sorted_colors = sorted(percentages.items(), key=lambda x: x[1], reverse=True)
 
-                    # Sort colors by percentage
-                    sorted_colors = sorted(percentages.items(), key=lambda x: x[1], reverse=True)
+                if sorted_colors[0][1] == 0:
+                    shelf_life_prediction = "No banana detected!"
+                    dominant_color = "N/A"
+                else:
+                    top_color, top_value = sorted_colors[0]
+                    second_color, second_value = sorted_colors[1]
 
-                    # If no banana detected
-                    if sorted_colors[0][1] == 0:
-                        shelf_life_prediction = "No banana detected!"
+                    if abs(top_value - second_value) <= 5:
+                        avg_min = (shelf_life[top_color][0] + shelf_life[second_color][0]) // 2
+                        avg_max = (shelf_life[top_color][1] + shelf_life[second_color][1]) // 2
+                        shelf_life_prediction = f"Shelf Life: {avg_min}-{avg_max} days ({top_color} & {second_color})"
                     else:
-                        top_color, top_value = sorted_colors[0]
-                        second_color, second_value = sorted_colors[1]
+                        min_days, max_days = shelf_life[top_color]
+                        shelf_life_prediction = f"Shelf Life: {min_days}-{max_days} days ({top_color})"
 
-                        # Determine the shelf life prediction based on top two colors
-                        if abs(top_value - second_value) <= 5:
-                            # Average the shelf life values if the top two colors are close in percentage
-                            avg_min = (shelf_life[top_color][0] + shelf_life[second_color][0]) // 2
-                            avg_max = (shelf_life[top_color][1] + shelf_life[second_color][1]) // 2
-                            shelf_life_prediction = f"Shelf Life: {avg_min}-{avg_max} days ({top_color} & {second_color})"
-                        else:
-                            # Use the top color shelf life if the difference is large
-                            min_days, max_days = shelf_life[top_color]
-                            shelf_life_prediction = f"Shelf Life: {min_days}-{max_days} days ({top_color})"
+                    dominant_color = top_color
 
-                    return render_template('image_upload.html', prediction=shelf_life_prediction, dominant_color=top_color)
+                # End timer
+                prediction_time = round(time.time() - start_time, 2)
 
-            return render_template('image_upload.html', error="No banana detected.")
+                return render_template(
+                    'image_upload.html',
+                    prediction=shelf_life_prediction,
+                    dominant_color=dominant_color,
+                    prediction_time=prediction_time
+                )
+
+        return render_template('image_upload.html', error="No banana detected. Try uploading or capturing again.")
 
     return render_template('image_upload.html')
 
