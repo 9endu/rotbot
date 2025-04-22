@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RotBot - About Us</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .hero-bg {
+      background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+      background-size: cover;
+      background-position: center;
+    }
+    .sensor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-50">
+
+  <!-- Navigation -->
+  <nav class="bg-green-700 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-apple-alt text-2xl"></i>
+        <span class="text-xl font-bold">RotBot</span>
+      </div>
+      <div class="hidden md:flex space-x-6">
+        <a href="#" class="hover:text-green-200">Home</a>
+        <a href="#" class="font-semibold border-b-2 border-white">About</a>
+        <a href="#" class="hover:text-green-200">Technology</a>
+        <a href="#" class="hover:text-green-200">Contact</a>
+      </div>
+      <button class="md:hidden text-xl">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-bg text-white py-20 md:py-32">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">About RotBot</h1>
+      <p class="text-xl md:text-2xl max-w-2xl mx-auto">Revolutionizing fruit freshness detection with IoT and AI</p>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold text-green-700 mb-6">About Us</h2>
+        <p class="text-gray-700 mb-8 text-lg">
+          We are a team of aspiring innovators focused on building intelligent solutions to real-world problems using cutting-edge technologies. Our current project is an <span class="font-semibold">IoT-Based Fruit Freshness Detection System</span>, developed to address the challenge of food spoilage by determining the freshness level of fruits in real time.
+        </p>
+
+        <div class="mb-12">
+          <h3 class="text-2xl font-bold text-green-700 mb-4">Project Objective</h3>
+          <p class="text-gray-700 mb-4">The goal of this project is to design a system that can:</p>
+          <ul class="list-disc pl-6 space-y-2 text-gray-700">
+            <li><span class="font-semibold">Detect the freshness</span> of fruits using sensor data.</li>
+            <li><span class="font-semibold">Minimize fruit waste</span> by providing real-time classification of fruit condition.</li>
+            <li><span class="font-semibold">Help vendors and consumers</span> make informed decisions about fruit quality.</li>
+          </ul>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div>
+            <img src="https://images.unsplash.com/photo-1603569283847-aa6f0adf4494?auto=format&fit=crop&w=1470&q=80"
+              alt="Fruit freshness detection"
+              class="rounded-lg shadow-md w-full h-64 object-cover">
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-green-700 mb-4">Sensor Setup</h3>
+            <p class="text-gray-700 mb-4">Our system uses a carefully selected array of sensors and microcontrollers:</p>
+            <div class="space-y-4">
+              <div class="p-4 bg-gray-50 rounded-lg sensor-card transition duration-300">
+                <h4 class="font-semibold text-green-700">MQ4 Gas Sensor</h4>
+                <p class="text-gray-600">Detects the ethylene gas emitted by ripening fruits.</p>
+              </div>
+              <div class="p-4 bg-gray-50 rounded-lg sensor-card transition duration-300">
+                <h4 class="font-semibold text-green-700">DHT11 Sensor</h4>
+                <p class="text-gray-600">Captures temperature and humidity data.</p>
+              </div>
+              <div class="p-4 bg-gray-50 rounded-lg sensor-card transition duration-300">
+                <h4 class="font-semibold text-green-700">Arduino Uno / NodeMCU</h4>
+                <p class="text-gray-600">Acts as the core controller and data transmitter.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <h3 class="text-2xl font-bold text-green-700 mb-4">Machine Learning Integration</h3>
+          <p class="text-gray-700 mb-4">
+            We use supervised machine learning models trained on sensor data to classify fruits into three freshness categories:
+          </p>
+          <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-green-100 p-4 rounded-lg text-center">
+              <span class="block text-green-700 font-bold text-lg">Fresh</span>
+            </div>
+            <div class="bg-yellow-100 p-4 rounded-lg text-center">
+              <span class="block text-yellow-700 font-bold text-lg">Mid-Fresh</span>
+            </div>
+            <div class="bg-red-100 p-4 rounded-lg text-center">
+              <span class="block text-red-700 font-bold text-lg">Spoiled</span>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <h4 class="font-semibold text-gray-800">MLP (Multi-layer Perceptron)</h4>
+              <p class="text-gray-600">A neural network used for pattern recognition and classification.</p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-800">XGBoost</h4>
+              <p class="text-gray-600">A gradient boosting algorithm that provides high accuracy in predictive modeling.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-2xl font-bold text-green-700 mb-4">Model Accuracy</h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold">MLP Accuracy</span>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">93.2%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-green-600 h-2.5 rounded-full" style="width: 93.2%"></div>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold">XGBoost Accuracy</span>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">95.7%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-green-600 h-2.5 rounded-full" style="width: 95.7%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-green-700 text-center mb-8">Project Gallery</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <img src="https://images.unsplash.com/photo-1587243964534-6f3e4ac2bba0?auto=format&fit=crop&w=600&q=80" alt="Sensor Setup 1" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
+        <img src="https://images.unsplash.com/photo-1609981132334-601ca29b0e8e?auto=format&fit=crop&w=600&q=80" alt="Prototype Working" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
+        <img src="https://images.unsplash.com/photo-1612197522706-f97e13513b99?auto=format&fit=crop&w=600&q=80" alt="Team Testing" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
+        <img src="https://images.unsplash.com/photo-1559757175-a2a6d41c08e0?auto=format&fit=crop&w=600&q=80" alt="RotBot Close-up" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
+        <img src="https://images.unsplash.com/photo-1624463532837-faa45b949183?auto=format&fit=crop&w=600&q=80" alt="Development Phase" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="py-16 bg-green-700 text-white">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-4">Contact Us</h2>
+      <p class="text-lg mb-4">Have questions or want to collaborate? Reach out!</p>
+      <p><i class="fas fa-envelope mr-2"></i>team@rotbot.dev</p>
+      <p><i class="fas fa-phone-alt mr-2"></i>+91 98765 43210</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-6 text-center">
+    <p>&copy; 2025 RotBot. All rights reserved.</p>
+    <div class="flex justify-center space-x-4 mt-2">
+      <a href="#" class="hover:text-green-300"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="hover:text-green-300"><i class="fab fa-github"></i></a>
+      <a href="#" class="hover:text-green-300"><i class="fab fa-linkedin"></i></a>
+    </div>
+  </footer>
+
+</body>
+</html>

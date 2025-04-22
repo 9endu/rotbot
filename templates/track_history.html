@@ -3,341 +3,521 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Track Your History</title>
+  <title>Food Freshness History</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <style>
+    :root {
+      --primary: #4CAF50;
+      --primary-dark: #388E3C;
+      --secondary: #2196F3;
+      --danger: #F44336;
+      --light-gray: #f5f5f5;
+      --medium-gray: #e0e0e0;
+      --dark-gray: #757575;
+      --white: #ffffff;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f7fc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-gray);
       color: #333;
       margin: 0;
       padding: 0;
     }
 
     .container {
-      width: 85%;
-      margin: 0 auto;
-      padding: 30px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 1400px;
+      margin: 30px auto;
+      padding: 20px;
     }
 
-    h1, h2 {
-      text-align: center;
-      color: #4CAF50;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--medium-gray);
     }
 
-    h2 {
-      border-bottom: 2px solid #4CAF50;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
+    h1 {
+      color: var(--primary-dark);
+      margin: 0;
+      font-size: 28px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .card {
+      background-color: var(--white);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 25px;
       margin-bottom: 30px;
     }
 
-    th, td {
-      padding: 12px;
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .card-title i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+
+    .metrics-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .metric-card {
+      background: var(--white);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--shadow);
       text-align: center;
-      border: 1px solid #ddd;
-      background-color: #f9f9f9;
     }
 
-    th {
-      background-color: #4CAF50;
-      color: white;
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin: 10px 0;
     }
 
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    tr:hover {
-      background-color: #ddd;
+    .metric-label {
+      color: var(--dark-gray);
+      font-size: 14px;
     }
 
     .chart-container {
       width: 100%;
-      margin: 30px 0;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    #pieChartContainer {
-      width: 300px;
-      margin: 0 auto 30px auto;
-    }
-
-    .alert {
-      padding: 15px;
-      background-color: #f44336;
-      color: white;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-
-    .alert.success {
-      background-color: #4CAF50;
-    }
-
-    .alert p {
-      margin: 0;
-    }
-
-    .controls {
-      text-align: center;
+      height: 400px;
       margin: 20px 0;
     }
 
-    .controls input, .controls select, .controls button {
-      margin: 5px;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--dark-gray);
+      font-weight: 500;
+    }
+
+    input, select {
+      padding: 8px 12px;
+      border: 1px solid var(--medium-gray);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    button.secondary {
+      background-color: var(--secondary);
+    }
+
+    button.danger {
+      background-color: var(--danger);
+    }
+
+    .home-btn {
+      background-color: var(--primary-dark);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .home-btn:hover {
+      background-color: #09592f;
+      transform: translateY(-2px);
+      color: white;
+      text-decoration: none;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .data-table th {
+      background-color: var(--primary);
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--medium-gray);
+    }
+
+    .data-table tr:nth-child(even) {
+      background-color: var(--light-gray);
+    }
+
+    .data-table tr:hover {
+      background-color: #e8f5e9;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge.fresh {
+      background-color: #e8f5e9;
+      color: var(--primary-dark);
+    }
+
+    .badge.rotten {
+      background-color: #ffebee;
+      color: var(--danger);
     }
 
     .hidden {
       display: none;
     }
-    .home-btn {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  background-color: #0e743c;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
 
-.home-btn:hover {
-  background-color: #09592f;
-  transform: translateX(-3px);
-  color: white; /* Ensures it doesn't turn blue */
-  text-decoration: none; /* Prevents underline */
-}
+    @media (max-width: 768px) {
+      .metrics-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
-
-<div class="container">
-  <h1>Track Your History</h1>
-
-  <div class="controls">
-    <label>Start Date: <input type="date" id="startDate"></label>
-    <label>End Date: <input type="date" id="endDate"></label>
-    <label>Output:
-      <select id="outputFilter">
-        <option value="">All</option>
-        <option value="Fresh">Fresh</option>
-        <option value="Rotten">Rotten</option>
-      </select>
-    </label>
-    <button onclick="filterData()">Apply Filters</button>
-    <button onclick="toggleTables()">Show Tables</button>
-    <button onclick="downloadCSV()">Download CSV</button>
-  </div>
-
-  <div id="pieChartContainer">
-    <canvas id="pieChart"></canvas>
-  </div>
-
-  <!-- Custom Data Table -->
-  <h2>Custom Data </h2>
-  {% if custom_data %}
-    <div class="alert success"><p>Data successfully loaded.</p></div>
-    <div id="customTable" class="hidden">
-      <table id="customDataTable">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Temperature</th>
-          <th>Humidity</th>
-          <th>Methane</th>
-          <th>Output</th>
-          <th>Timestamp</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for entry_id, entry in custom_data.items() %}
-          <tr>
-            <td>{{ entry_id }}</td>
-            <td>{{ entry.temperature }}</td>
-            <td>{{ entry.humidity }}</td>
-            <td>{{ entry.methane }}</td>
-            <td>{{ entry.output }}</td>
-            <td>{{ entry.timestamp }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+  <div class="container">
+    <div class="header">
+      <h1>Food Freshness History</h1>
+      <a href="/" class="home-btn"><i class="fas fa-home"></i> Home</a>
     </div>
-  {% endif %}
 
-  <div class="chart-container">
-    <canvas id="customDataChart"></canvas>
-  </div>
-
-  <!-- Firebase Data Table -->
-  <h2>Firebase Data </h2>
-  {% if firebase_data %}
-    <div class="alert success"><p>Data successfully loaded.</p></div>
-    <div id="firebaseTable" class="hidden">
-      <table id="firebaseDataTable">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Temperature</th>
-          <th>Humidity</th>
-          <th>Methane</th>
-          <th>Output</th>
-          <th>Timestamp</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for entry_id, entry in firebase_data.items() %}
-          <tr>
-            <td>{{ entry_id }}</td>
-            <td>{{ entry.temperature }}</td>
-            <td>{{ entry.humidity }}</td>
-            <td>{{ entry.methane }}</td>
-            <td>{{ entry.output }}</td>
-            <td>{{ entry.timestamp }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+    <div class="controls">
+      <div class="control-group">
+        <label for="startDate"><i class="far fa-calendar-alt"></i> Start:</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="control-group">
+        <label for="endDate"><i class="far fa-calendar-alt"></i> End:</label>
+        <input type="date" id="endDate">
+      </div>
+      <div class="control-group">
+        <label for="outputFilter"><i class="fas fa-filter"></i> Status:</label>
+        <select id="outputFilter">
+          <option value="">All</option>
+          <option value="Fresh">Fresh</option>
+          <option value="Rotten">Rotten</option>
+        </select>
+      </div>
+      <button onclick="filterData()"><i class="fas fa-search"></i> Apply</button>
+      <button class="secondary" onclick="toggleTables()"><i class="fas fa-table"></i> Toggle Table</button>
+      <button class="danger" onclick="downloadCSV()"><i class="fas fa-download"></i> Export</button>
     </div>
-  {% endif %}
 
-  <div class="chart-container">
-    <canvas id="firebaseDataChart"></canvas>
+    <div class="metrics-container">
+      <div class="metric-card">
+        <div class="metric-label"><i class="fas fa-thermometer-half"></i> Avg Temperature</div>
+        <div class="metric-value" id="avgTemp">--°C</div>
+        <div class="metric-label">Last 30 days</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="fas fa-tint"></i> Avg Humidity</div>
+        <div class="metric-value" id="avgHum">--%</div>
+        <div class="metric-label">Last 30 days</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label"><i class="fas fa-cloud"></i> Avg Methane</div>
+        <div class="metric-value" id="avgMethane">--ppm</div>
+        <div class="metric-label">Last 30 days</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-chart-pie"></i> Freshness Distribution</div>
+      <div class="chart-container">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-chart-line"></i> Sensor Trends</div>
+      <div class="chart-container">
+        <canvas id="sensorChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div id="dataTable" class="hidden">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-table"></i> Detailed Data</div>
+        <table class="data-table" id="combinedDataTable">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Temp (°C)</th>
+              <th>Humidity (%)</th>
+              <th>Methane (ppm)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if custom_data %}
+              {% for entry_id, entry in custom_data.items() %}
+                <tr>
+                  <td>{{ entry.timestamp }}</td>
+                  <td>{{ entry.temperature }}</td>
+                  <td>{{ entry.humidity }}</td>
+                  <td>{{ entry.methane }}</td>
+                  <td><span class="badge {{ entry.output.lower() }}">{{ entry.output }}</span></td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+            {% if firebase_data %}
+              {% for entry_id, entry in firebase_data.items() %}
+                <tr>
+                  <td>{{ entry.timestamp }}</td>
+                  <td>{{ entry.temperature }}</td>
+                  <td>{{ entry.humidity }}</td>
+                  <td>{{ entry.methane }}</td>
+                  <td><span class="badge {{ entry.output.lower() }}">{{ entry.output }}</span></td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-
-</div>
 
 <script>
+  // Initialize charts and metrics
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if custom_data or firebase_data %}
+      // Combine data from both sources
+      const allData = [];
+      {% if custom_data %}
+        {% for entry_id, entry in custom_data.items() %}
+          allData.push({
+            timestamp: new Date("{{ entry.timestamp }}"),
+            temperature: parseFloat("{{ entry.temperature }}"),
+            humidity: parseFloat("{{ entry.humidity }}"),
+            methane: parseFloat("{{ entry.methane }}"),
+            output: "{{ entry.output }}"
+          });
+        {% endfor %}
+      {% endif %}
+      {% if firebase_data %}
+        {% for entry_id, entry in firebase_data.items() %}
+          allData.push({
+            timestamp: new Date("{{ entry.timestamp }}"),
+            temperature: parseFloat("{{ entry.temperature }}"),
+            humidity: parseFloat("{{ entry.humidity }}"),
+            methane: parseFloat("{{ entry.methane }}"),
+            output: "{{ entry.output }}"
+          });
+        {% endfor %}
+      {% endif %}
+
+      // Sort by timestamp
+      allData.sort((a, b) => a.timestamp - b.timestamp);
+
+      // Calculate averages
+      const avgTemp = allData.reduce((sum, entry) => sum + entry.temperature, 0) / allData.length;
+      const avgHum = allData.reduce((sum, entry) => sum + entry.humidity, 0) / allData.length;
+      const avgMethane = allData.reduce((sum, entry) => sum + entry.methane, 0) / allData.length;
+
+      document.getElementById('avgTemp').textContent = avgTemp.toFixed(1) + '°C';
+      document.getElementById('avgHum').textContent = avgHum.toFixed(1) + '%';
+      document.getElementById('avgMethane').textContent = avgMethane.toFixed(2) + 'ppm';
+
+      // Pie chart for freshness distribution
+      const outputCounts = allData.reduce((acc, entry) => {
+        acc[entry.output] = (acc[entry.output] || 0) + 1;
+        return acc;
+      }, {});
+
+      new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(outputCounts),
+          datasets: [{
+            data: Object.values(outputCounts),
+            backgroundColor: ['#4CAF50', '#F44336'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Line chart for sensor trends
+      const labels = allData.map(entry => entry.timestamp.toLocaleString());
+      const tempData = allData.map(entry => entry.temperature);
+      const humData = allData.map(entry => entry.humidity);
+      const methaneData = allData.map(entry => entry.methane);
+
+      new Chart(document.getElementById('sensorChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Temperature (°C)',
+              data: tempData,
+              borderColor: '#FF6384',
+              backgroundColor: 'rgba(255, 99, 132, 0.1)',
+              borderWidth: 2,
+              tension: 0.1
+            },
+            {
+              label: 'Humidity (%)',
+              data: humData,
+              borderColor: '#36A2EB',
+              backgroundColor: 'rgba(54, 162, 235, 0.1)',
+              borderWidth: 2,
+              tension: 0.1
+            },
+            {
+              label: 'Methane (ppm)',
+              data: methaneData,
+              borderColor: '#4BC0C0',
+              backgroundColor: 'rgba(75, 192, 192, 0.1)',
+              borderWidth: 2,
+              tension: 0.1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              beginAtZero: false
+            }
+          },
+          interaction: {
+            mode: 'index',
+            intersect: false
+          }
+        }
+      });
+    {% endif %}
+  });
+
   function toggleTables() {
-    const customTable = document.getElementById('customTable');
-    const firebaseTable = document.getElementById('firebaseTable');
-    customTable.classList.toggle('hidden');
-    firebaseTable.classList.toggle('hidden');
+    const table = document.getElementById('dataTable');
+    table.classList.toggle('hidden');
   }
 
-  function extractChartData(data) {
-    const labels = [], temps = [], hums = [], methanes = [], outputs = [];
+  function filterData() {
+    const start = document.getElementById("startDate").value ? new Date(document.getElementById("startDate").value) : null;
+    const end = document.getElementById("endDate").value ? new Date(document.getElementById("endDate").value) : null;
+    const outputFilter = document.getElementById("outputFilter").value;
 
-    for (const key in data) {
-      const entry = data[key];
-      labels.push(entry.timestamp);
-      temps.push(entry.temperature);
-      hums.push(entry.humidity);
-      methanes.push(entry.methane);
-      outputs.push(entry.output);
-    }
-
-    return { labels, temps, hums, methanes, outputs };
+    const rows = document.querySelectorAll("#combinedDataTable tbody tr");
+    rows.forEach(row => {
+      const timestamp = new Date(row.cells[0].textContent);
+      const output = row.cells[4].querySelector('.badge').textContent;
+      
+      const timeMatch = (!start || timestamp >= start) && (!end || timestamp <= end);
+      const outputMatch = !outputFilter || output === outputFilter;
+      
+      row.style.display = timeMatch && outputMatch ? "" : "none";
+    });
   }
-
-  {% if custom_data %}
-    const customData = {{ custom_data | tojson }};
-    const customChartData = extractChartData(customData);
-
-    new Chart(document.getElementById('customDataChart'), {
-      type: 'line',
-      data: {
-        labels: customChartData.labels,
-        datasets: [
-          { label: 'Temperature', data: customChartData.temps, borderColor: 'red', borderWidth: 2, fill: false },
-          { label: 'Humidity', data: customChartData.hums, borderColor: 'blue', borderWidth: 2, fill: false },
-          { label: 'Methane', data: customChartData.methanes, borderColor: 'green', borderWidth: 2, fill: false }
-        ]
-      },
-      options: { responsive: true }
-    });
-
-    // Pie chart for outputs
-    const outputCounts = customChartData.outputs.reduce((acc, out) => {
-      acc[out] = (acc[out] || 0) + 1;
-      return acc;
-    }, {});
-
-    new Chart(document.getElementById('pieChart'), {
-      type: 'pie',
-      data: {
-        labels: Object.keys(outputCounts),
-        datasets: [{
-          data: Object.values(outputCounts),
-          backgroundColor: ['#4CAF50', '#f44336']
-        }]
-      },
-      options: { responsive: true }
-    });
-  {% endif %}
-
-  {% if firebase_data %}
-    const firebaseData = {{ firebase_data | tojson }};
-    const firebaseChartData = extractChartData(firebaseData);
-
-    new Chart(document.getElementById('firebaseDataChart'), {
-      type: 'line',
-      data: {
-        labels: firebaseChartData.labels,
-        datasets: [
-          { label: 'Temperature', data: firebaseChartData.temps, borderColor: 'red', borderWidth: 2, fill: false },
-          { label: 'Humidity', data: firebaseChartData.hums, borderColor: 'blue', borderWidth: 2, fill: false },
-          { label: 'Methane', data: firebaseChartData.methanes, borderColor: 'green', borderWidth: 2, fill: false }
-        ]
-      },
-      options: { responsive: true }
-    });
-  {% endif %}
 
   function downloadCSV() {
-    const rows = [...document.querySelectorAll("table tr")];
+    const rows = [...document.querySelectorAll("#combinedDataTable tr")];
     const csv = rows.map(row =>
-      [...row.children].map(cell => `"${cell.innerText}"`).join(",")
+      [...row.cells].map(cell => {
+        // Handle the badge element in status column
+        const badge = cell.querySelector('.badge');
+        return `"${badge ? badge.textContent : cell.textContent}"`;
+      }).join(",")
     ).join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
-    link.download = "sensor_data.csv";
+    link.download = "food_freshness_data.csv";
     link.href = URL.createObjectURL(blob);
     link.click();
   }
-
-  function filterData() {
-    const start = new Date(document.getElementById("startDate").value);
-    const end = new Date(document.getElementById("endDate").value);
-    const outputFilter = document.getElementById("outputFilter").value;
-
-    const filterTable = (tableId) => {
-      const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-      rows.forEach(row => {
-        const timestamp = new Date(row.children[5].innerText);
-        const output = row.children[4].innerText;
-        const show = (!isNaN(start) ? timestamp >= start : true)
-                  && (!isNaN(end) ? timestamp <= end : true)
-                  && (outputFilter ? output === outputFilter : true);
-        row.style.display = show ? "" : "none";
-      });
-    };
-
-    filterTable("customDataTable");
-    filterTable("firebaseDataTable");
-  }
 </script>
-
 </body>
 </html>

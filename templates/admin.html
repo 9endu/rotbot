@@ -4,332 +4,521 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* General Styles */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7fc;
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --danger: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --box-shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
-        h1 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 20px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
-            background-color: transparent; /* Remove blue background */
-            color: #333;
+        }
+
+        /* Header Styles */
+        .header {
             display: flex;
-            justify-content: center; /* Center all content */
+            justify-content: space-between;
             align-items: center;
-            position: relative; /* Position logout button */
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
         }
 
-        h1 a.logout {
-            position: absolute; /* Position logout button to the far right */
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: #dc3545;
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
         }
 
-        h1 a.logout:hover {
-            background-color: #a71d2a;
-        }
-
-        /* Button Styles */
-        .btn-container {
-            margin: 30px 0;
-            display: flex;
-            justify-content: space-evenly;
-            gap: 20px;
-        }
-
-        .btn-container button {
-            padding: 12px 20px;
-            background-color: #007bff;
+        .logout-btn {
+            background-color: var(--danger);
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-container button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
+        .logout-btn:hover {
+            background-color: #e5177e;
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-hover);
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background-color: var(--light-gray);
+            color: var(--dark);
         }
 
         /* Section Styles */
         .section {
             display: none;
-            margin-top: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.3s ease;
         }
 
-        .section h2 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .search-box {
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            width: 300px;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
 
         /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 0 1px var(--light-gray);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+            min-width: 800px;
         }
 
         th {
-            background-color: #007bff;
+            background-color: var(--primary);
             color: white;
-        }
-
-        tr:hover {
-            background-color: #f7f7f7;
-        }
-
-        .search-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 10px;
-        }
-
-        .search-input {
-            padding: 8px 15px;
-            margin: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-
-        .filter-btn {
-            margin: 10px;
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            background-color: #007bff;
-            color: white;
-            font-size: 14px;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+            position: relative;
             cursor: pointer;
-            border-radius: 5px;
+            user-select: none;
         }
 
-        .filter-btn:hover {
-            background-color: #0056b3;
+        th:hover {
+            background-color: var(--primary-dark);
         }
 
-        /* Mobile Responsiveness */
+        th.sortable::after {
+            content: "↕";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        th.sorted-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+
+        th.sorted-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        /* User Badges */
+        .user-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--light);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Styles */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 24px;
+            .header {
                 flex-direction: column;
+                gap: 15px;
                 text-align: center;
             }
 
-            .btn-container {
+            .tabs {
                 flex-direction: column;
-                align-items: center;
             }
 
-            .btn-container button {
+            .search-box {
                 width: 100%;
-                margin-bottom: 10px;
+                margin-top: 15px;
             }
 
-            .search-input {
-                width: 80%;
-                margin: 10px auto;
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background-color: var(--success);
+        }
+
+        .status-inactive {
+            background-color: var(--gray);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
         }
     </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showSection('user-details')">User Details</button>
+            <button class="tab-btn" onclick="showSection('custom-data')">Custom Data</button>
+            <button class="tab-btn" onclick="showSection('firebase-data')">Firebase Data</button>
+        </div>
+
+        <!-- User Details Section -->
+        <div id="user-details" class="section active">
+            <div class="section-header">
+                <h2 class="section-title">User Management</h2>
+                <input type="text" id="user-search" class="search-box" placeholder="Search users..." onkeyup="filterTable('user-search', 'user-details-table')">
+            </div>
+            
+            <div class="table-container">
+                <table id="user-details-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable(0, 'user-details-table')">Email</th>
+                            <th class="sortable" onclick="sortTable(1, 'user-details-table')">Company</th>
+                            <th class="sortable" onclick="sortTable(2, 'user-details-table')">Industry</th>
+                            <th class="sortable" onclick="sortTable(3, 'user-details-table')">Location</th>
+                            <th class="sortable" onclick="sortTable(4, 'user-details-table')">Contact</th>
+                            <th class="sortable" onclick="sortTable(5, 'user-details-table')">Phone</th>
+                            <th>Password</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for uid, info in users.items() %}
+                            <tr>
+                                <td>{{ uid }}</td>
+                                <td>{{ info.get('company_name', 'N/A') }}</td>
+                                <td>{{ info.get('industry', 'N/A') }}</td>
+                                <td>{{ info.get('location', 'N/A') }}</td>
+                                <td>{{ info.get('name', 'N/A') }}</td>
+                                <td>{{ info.get('phone', 'N/A') }}</td>
+                                <td>••••••••</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Custom Data Section -->
+        <div id="custom-data" class="section">
+            <div class="section-header">
+                <h2 class="section-title">Custom Data Records</h2>
+            </div>
+            
+            {% for uid, info in users.items() %}
+                {% if info.history and info.history.custom_data %}
+                    <div class="user-badge">{{ uid }}</div>
+                    <div class="table-container">
+                        <table id="custom-data-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" onclick="sortTable(0, 'custom-data-table')">ID</th>
+                                    <th class="sortable" onclick="sortTable(1, 'custom-data-table')">Temp (°C)</th>
+                                    <th class="sortable" onclick="sortTable(2, 'custom-data-table')">Humidity</th>
+                                    <th class="sortable" onclick="sortTable(3, 'custom-data-table')">Methane</th>
+                                    <th class="sortable" onclick="sortTable(4, 'custom-data-table')">Output</th>
+                                    <th class="sortable" onclick="sortTable(5, 'custom-data-table', 'timestamp')">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry_id, entry in info.history.custom_data.items() %}
+                                    <tr>
+                                        <td>{{ entry_id }}</td>
+                                        <td>{{ entry.temperature }}</td>
+                                        <td>{{ entry.humidity }}</td>
+                                        <td>{{ entry.methane }}</td>
+                                        <td>{{ entry.output }}</td>
+                                        <td>{{ entry.timestamp }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Firebase Data Section -->
+        <div id="firebase-data" class="section">
+            <div class="section-header">
+                <h2 class="section-title">Firebase Data Records</h2>
+            </div>
+            
+            {% for uid, info in users.items() %}
+                {% if info.history and info.history.firebase_data %}
+                    <div class="user-badge">{{ uid }}</div>
+                    <div class="table-container">
+                        <table id="firebase-data-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" onclick="sortTable(0, 'firebase-data-table')">ID</th>
+                                    <th class="sortable" onclick="sortTable(1, 'firebase-data-table')">Temp (°C)</th>
+                                    <th class="sortable" onclick="sortTable(2, 'firebase-data-table')">Humidity</th>
+                                    <th class="sortable" onclick="sortTable(3, 'firebase-data-table')">Methane</th>
+                                    <th class="sortable" onclick="sortTable(4, 'firebase-data-table')">Output</th>
+                                    <th class="sortable" onclick="sortTable(5, 'firebase-data-table', 'timestamp')">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry_id, entry in info.history.firebase_data.items() %}
+                                    <tr>
+                                        <td>{{ entry_id }}</td>
+                                        <td>{{ entry.temperature }}</td>
+                                        <td>{{ entry.humidity }}</td>
+                                        <td>{{ entry.methane }}</td>
+                                        <td>{{ entry.output }}</td>
+                                        <td>{{ entry.timestamp }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
     <script>
-        function toggleSection(id) {
-            const section = document.getElementById(id);
-            section.style.display = section.style.display === 'none' || section.style.display === '' ? 'block' : 'none';
+        // Show the selected section and update active tab
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
         }
 
+        // Filter table rows based on search input
         function filterTable(inputId, tableId) {
-            const filter = document.getElementById(inputId).value.toLowerCase();
+            const input = document.getElementById(inputId);
+            const filter = input.value.toLowerCase();
             const table = document.getElementById(tableId);
             const rows = table.getElementsByTagName('tr');
 
             for (let i = 1; i < rows.length; i++) {
-                let cells = rows[i].getElementsByTagName('td');
-                let matched = false;
+                let matchFound = false;
+                const cells = rows[i].getElementsByTagName('td');
+                
                 for (let j = 0; j < cells.length; j++) {
-                    if (cells[j].textContent.toLowerCase().includes(filter)) {
-                        matched = true;
+                    const cellText = cells[j].textContent || cells[j].innerText;
+                    if (cellText.toLowerCase().indexOf(filter) > -1) {
+                        matchFound = true;
                         break;
                     }
                 }
-                rows[i].style.display = matched ? '' : 'none';
+                
+                rows[i].style.display = matchFound ? '' : 'none';
             }
         }
 
-        function sortTable(columnIndex, tableId) {
+        // Sort table by column
+        function sortTable(columnIndex, tableId, dataType = 'text') {
             const table = document.getElementById(tableId);
-            const rows = Array.from(table.rows).slice(1);
-            const isAscending = table.getAttribute('data-sort') === 'asc';
-
+            const headers = table.getElementsByTagName('th');
+            const rows = Array.from(table.rows).slice(1); // Skip header row
+            const isAscending = headers[columnIndex].classList.contains('sorted-asc');
+            
+            // Reset all sort indicators
+            Array.from(headers).forEach(header => {
+                header.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            
+            // Set new sort indicator
+            headers[columnIndex].classList.add(isAscending ? 'sorted-desc' : 'sorted-asc');
+            
+            // Sort rows
             rows.sort((rowA, rowB) => {
                 const cellA = rowA.cells[columnIndex].textContent.trim();
                 const cellB = rowB.cells[columnIndex].textContent.trim();
-
-                if (isNaN(cellA) || isNaN(cellB)) {
-                    return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+                
+                if (dataType === 'timestamp') {
+                    // Special handling for timestamp sorting
+                    const dateA = new Date(cellA);
+                    const dateB = new Date(cellB);
+                    return isAscending ? dateA - dateB : dateB - dateA;
+                } else if (dataType === 'number') {
+                    // Number sorting
+                    const numA = parseFloat(cellA) || 0;
+                    const numB = parseFloat(cellB) || 0;
+                    return isAscending ? numA - numB : numB - numA;
+                } else {
+                    // Default text sorting
+                    return isAscending 
+                        ? cellA.localeCompare(cellB, undefined, { sensitivity: 'base' })
+                        : cellB.localeCompare(cellA, undefined, { sensitivity: 'base' });
                 }
-                return isAscending ? cellA - cellB : cellB - cellA;
             });
-
-            rows.forEach(row => table.appendChild(row));
-
-            table.setAttribute('data-sort', isAscending ? 'desc' : 'asc');
+            
+            // Rebuild table with sorted rows
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
         }
     </script>
-</head>
-<body>
-
-    <!-- Header with Logout -->
-    <h1>Welcome, Admin <a href="{{ url_for('logout') }}" class="logout">Logout</a></h1>
-
-    <!-- Button Container -->
-    <div class="btn-container">
-        <button onclick="toggleSection('user-details')">Toggle User Details</button>
-        <button onclick="toggleSection('custom-data')">Toggle Custom Data</button>
-        <button onclick="toggleSection('firebase-data')">Toggle Firebase Data</button>
-    </div>
-
-    <!-- User Details Section -->
-    <div class="section" id="user-details">
-        <div class="card">
-            <h2>User Details</h2>
-            <div class="search-container">
-                <input type="text" id="user-search" class="search-input" onkeyup="filterTable('user-search', 'user-details-table')" placeholder="Search User Details...">
-            </div>
-            <table id="user-details-table">
-                <thead>
-                    <tr>
-                        <th onclick="sortTable(0, 'user-details-table')">Email</th>
-                        <th onclick="sortTable(1, 'user-details-table')">Company Name</th>
-                        <th onclick="sortTable(2, 'user-details-table')">Industry</th>
-                        <th onclick="sortTable(3, 'user-details-table')">Location</th>
-                        <th onclick="sortTable(4, 'user-details-table')">Contact Name</th>
-                        <th onclick="sortTable(5, 'user-details-table')">Phone</th>
-                        <th>Password</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for uid, info in users.items() %}
-                        <tr>
-                            <td>{{ uid }}</td>
-                            <td>{{ info.get('company_name', 'N/A') }}</td>
-                            <td>{{ info.get('industry', 'N/A') }}</td>
-                            <td>{{ info.get('location', 'N/A') }}</td>
-                            <td>{{ info.get('name', 'N/A') }}</td>
-                            <td>{{ info.get('phone', 'N/A') }}</td>
-                            <td>{{ info.get('password', 'N/A') }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Custom Data Section -->
-    <div class="section" id="custom-data">
-        <div class="card">
-            <h2>Custom Data (Per User)</h2>
-            <div class="search-container">
-                <input type="text" id="custom-search" class="search-input" onkeyup="filterTable('custom-search', 'custom-data-table')" placeholder="Search Custom Data...">
-            </div>
-            {% for uid, info in users.items() %}
-                {% if info.history and info.history.custom_data %}
-                    <h3>{{ uid }}</h3>
-                    <table id="custom-data-table">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable(0, 'custom-data-table')">ID</th>
-                                <th onclick="sortTable(1, 'custom-data-table')">Temperature</th>
-                                <th onclick="sortTable(2, 'custom-data-table')">Humidity</th>
-                                <th onclick="sortTable(3, 'custom-data-table')">Methane</th>
-                                <th onclick="sortTable(4, 'custom-data-table')">Output</th>
-                                <th onclick="sortTable(5, 'custom-data-table')">Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for entry_id, entry in info.history.custom_data.items() %}
-                                <tr>
-                                    <td>{{ entry_id }}</td>
-                                    <td>{{ entry.temperature }}</td>
-                                    <td>{{ entry.humidity }}</td>
-                                    <td>{{ entry.methane }}</td>
-                                    <td>{{ entry.output }}</td>
-                                    <td>{{ entry.timestamp }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Firebase Data Section -->
-    <div class="section" id="firebase-data">
-        <div class="card">
-            <h2>Firebase Data (Per User)</h2>
-            <div class="search-container">
-                <input type="text" id="firebase-search" class="search-input" onkeyup="filterTable('firebase-search', 'firebase-data-table')" placeholder="Search Firebase Data...">
-            </div>
-            {% for uid, info in users.items() %}
-                {% if info.history and info.history.firebase_data %}
-                    <h3>{{ uid }}</h3>
-                    <table id="firebase-data-table">
-                        <thead>
-                            <tr>
-                                <th onclick="sortTable(0, 'firebase-data-table')">ID</th>
-                                <th onclick="sortTable(1, 'firebase-data-table')">Temperature</th>
-                                <th onclick="sortTable(2, 'firebase-data-table')">Humidity</th>
-                                <th onclick="sortTable(3, 'firebase-data-table')">Methane</th>
-                                <th onclick="sortTable(4, 'firebase-data-table')">Output</th>
-                                <th onclick="sortTable(5, 'firebase-data-table')">Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for entry_id, entry in info.history.firebase_data.items() %}
-                                <tr>
-                                    <td>{{ entry_id }}</td>
-                                    <td>{{ entry.temperature }}</td>
-                                    <td>{{ entry.humidity }}</td>
-                                    <td>{{ entry.methane }}</td>
-                                    <td>{{ entry.output }}</td>
-                                    <td>{{ entry.timestamp }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-
 </body>
 </html>
