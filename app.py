@@ -6,7 +6,7 @@ from PIL import Image
 import torch
 from torchvision import models, transforms
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory
 
 # Firebase (if used elsewhere in your app)
 import firebase_admin
@@ -401,6 +401,10 @@ def predict_from_latest_data_for_shelflife():
         predicted_label = label_mapping.get(int(predicted_class), "Unknown")  # Convert to int to avoid issues with numpy types
         
         return predicted_label
+
+@app.route('/uploads/<path:filename>')
+def uploads(filename):
+    return send_from_directory('uploads', filename)
 
 @app.route('/upload_image', methods=['GET', 'POST'])
 def upload_image():

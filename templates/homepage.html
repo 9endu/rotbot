@@ -8,22 +8,47 @@
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Orbitron', sans-serif;
       color: #222;
       text-align: center;
       height: 100vh;
       background-color: #ffffff;
+      margin: 0;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      margin: 0;
+    }
+
+    .video-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: -1;
     }
 
     .container {
       max-width: 800px;
       padding: 20px;
       width: 100%;
+      color: white;
+      position: relative;
+      z-index: 1;
     }
 
     h1 {
@@ -33,72 +58,77 @@
       white-space: nowrap;
       overflow: hidden;
       border-right: 4px solid #0a4e30;
-      width: auto;
+      width: fit-content;
       margin: auto;
       animation: typing 3s steps(20, end) forwards, blink 0.7s infinite;
-      color: #0e743c;
+      color: white;
+      text-shadow:
+        1px 1px 0 #0a4e30,
+        2px 2px 0 #0a4e30,
+        3px 3px 0 #0a4e30,
+        4px 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     p {
       font-size: 1.2em;
       margin-top: 10px;
-      color: #444;
+      color: white;
     }
 
     .predict-section {
       margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .predict-btn {
       padding: 12px 24px;
-      font-size: 1em;
+      font-size: 1.2em;
       background-color: #0e743c;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      width: 250px;
+      margin: 10px auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    /* Fixed Track History Button Styling */
-.track-history-btn {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  padding: 12px 24px;
-  font-size: 1em;
-  background-color: #ffff;
-  color: black;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 1000; /* Ensure it stays on top */
-}
-
-.track-history-btn:hover {
-  background-color: #bab9b7;
-}
-
+    .predict-btn:hover {
+      background-color: #09592f;
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+    }
 
     .predict-options {
       margin-top: 15px;
       display: none;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
+      align-items: center;
     }
 
     .option-btn {
-      padding: 10px 20px;
-      font-size: 1em;
-      background-color: #146b4d;
-      color: white;
-      border: none;
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      padding: 15px 35px;
+      border-radius: 12px;
+      font-size: 1.1em;
+      font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.3s;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+      width: 250px;
     }
 
     .option-btn:hover {
-      background-color: #1e7f5e;
+      background: rgba(0, 255, 170, 0.2);
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(0, 255, 170, 0.6);
     }
 
     @keyframes typing {
@@ -110,7 +140,6 @@
       50% { border-color: transparent; }
     }
 
-    /* Fixed Logout Button Styling */
     .logout-btn {
       position: fixed;
       top: 20px;
@@ -121,20 +150,73 @@
       text-decoration: none;
       border-radius: 5px;
       cursor: pointer;
-      z-index: 1000; /* Ensure it stays on top */
+      z-index: 1000;
     }
 
     .logout-btn:hover {
       background-color: #c9302c;
     }
+
+    .track-history-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #082c18;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .track-history-btn:hover {
+      background-color: #35825a;
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(6, 142, 96, 0.3);
+    }
+
+    /* New About Us Button */
+    .about-us-btn {
+      position: fixed;
+      top: 20px;
+      left: 220px; /* Positioned next to Track Your History */
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #082c18;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .about-us-btn:hover {
+      background-color: #35825a;
+      transform: translateY(-3px);
+      box-shadow:  0 0 15px rgba(6, 142, 96, 0.3);
+    }
   </style>
 </head>
 <body>
 
+  <!-- Background Video -->
+  <video autoplay muted loop class="video-bg">
+    <source src="{{ url_for('uploads', filename='professionalbackground.mp4') }}" type="video/mp4" />
+    Your browser does not support HTML5 video.
+  </video>
+  <div class="overlay"></div>
+
+  {% if user %}
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+  {% endif %}
+
   <div class="container">
     {% if user %}
-      <h1>Welcome to RotBot, {{ name }}!</h1> <!-- User's name -->
-      <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a> <!-- Logout link -->
+      <h1>Welcome to RotBot !</h1>
     {% else %}
       <h1>Welcome to RotBot!</h1>
     {% endif %}
@@ -142,20 +224,23 @@
     <p>Get tips on storage, ripeness, and preservation.</p>
 
     <div class="predict-section">
-      <button class="predict-btn" onclick="toggleOptions()">Predict</button>
+      <button class="predict-btn" onclick="toggleOptions('predictOptions')">Predict</button>
       <div class="predict-options" id="predictOptions">
         <button class="option-btn" onclick="location.href='/custom'">Predict from Custom Sensor Data</button>
         <button class="option-btn" onclick="location.href='/firebase'">Predict Live from Database</button>
       </div>
-      <div class="predict-section">
-        <button class="predict-btn" onclick="toggleShelfLife()">Shelf Life Prediction</button>
-        <div class="predict-options" id="shelfLifeOptions">
-          <button class="option-btn" onclick="location.href='/upload_image'">From Image</button>
-          <button class="option-btn" onclick="location.href='/shelf-life-data'">From Live Sensor Data</button>
-        </div>
+
+      <button class="predict-btn" onclick="toggleOptions('shelfLifeOptions')">Shelf Life Prediction</button>
+      <div class="predict-options" id="shelfLifeOptions">
+        <button class="option-btn" onclick="location.href='/upload_image'">From Image</button>
+        <button class="option-btn" onclick="location.href='/shelf-life-data'">From Live Sensor Data</button>
       </div>
-      <!-- New Track History Button -->
+
+      <!-- Track History Button -->
       <button class="track-history-btn" onclick="location.href='/track_history'">Track Your History</button>
+
+      <!-- About Us Button -->
+      <button class="about-us-btn" onclick="location.href='/about_us'">About Us</button>
     </div>
   </div>
 
@@ -172,14 +257,24 @@
       enableConversationDeletion: true
     });
 
-    function toggleOptions() {
-      const options = document.getElementById("predictOptions");
-      options.style.display = options.style.display === "flex" ? "none" : "flex";
+    function toggleOptions(optionId) {
+      const currentOption = document.getElementById(optionId);
+      const allOptions = document.querySelectorAll('.predict-options');
+      
+      // Hide all other options
+      allOptions.forEach(option => {
+        if (option !== currentOption) {
+          option.style.display = 'none';
+        }
+      });
+
+      // Toggle the visibility of the clicked option
+      currentOption.style.display = currentOption.style.display === "flex" ? "none" : "flex";
     }
 
-    function toggleShelfLife() {
-      const options = document.getElementById("shelfLifeOptions");
-      options.style.display = options.style.display === "flex" ? "none" : "flex";
+    window.onload = () => {
+      const video = document.querySelector('.video-bg');
+      video.playbackRate = 0.5;
     }
   </script>
 
