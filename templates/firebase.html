@@ -3,93 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prediction from Firebase</title>
+  <title>Shelf Life Prediction</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      text-align: center;
-      padding: 50px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(to right, #020c1b, #001f1f);
+      color: #00ffaa;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     h1 {
-      color: #333;
-      font-size: 2em;
+      font-size: 2rem;
+      color: #00ffaa;
+      text-align: center;
+      margin-bottom: 30px;
+      text-shadow: 0 0 12px #00ffaa;
+      position: relative;
     }
 
-    .result {
-      margin-top: 30px;
-      font-size: 1.2em;
-      color: #0e743c;
-    }
-
-    .error {
-      margin-top: 30px;
-      font-size: 1.2em;
-      color: #e74c3c;
-    }
-
-    .back-button {
-      margin-top: 30px;
-      padding: 12px 20px;
-      font-size: 1em;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .back-button:hover {
-      background-color: #2980b9;
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 2px;
+      background: #00ffaa;
+      box-shadow: 0 0 10px #00ffaa;
     }
 
     .home-btn {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  background-color: #0e743c;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background-color: #0e743c;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-.home-btn:hover {
-  background-color: #09592f;
-  transform: translateX(-3px);
-}
+    .home-btn:hover {
+      background-color: #09592f;
+      transform: translateX(-3px);
+      color: white;
+      text-decoration: none;
+    }
 
+    .container {
+      background: rgba(0, 20, 30, 0.85);
+      border-radius: 16px;
+      padding: 30px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 0 25px rgba(0, 255, 170, 0.15), 0 0 45px rgba(0, 255, 170, 0.1);
+      margin-bottom: 30px;
+      border: 1px solid #00ffaa33;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #00ffaa;
+      border-bottom: 1px solid #00ffaa44;
+      padding-bottom: 10px;
+    }
+
+    .data-line {
+      margin: 10px 0;
+      font-size: 1rem;
+      color: #aaffff;
+    }
+
+    strong {
+      color: #00ffff;
+    }
   </style>
 </head>
 <body>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
   <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
 
+  <h1>Shelf Life Prediction Based on Sensor Data</h1>
+
   <div class="container">
-    <h1>Prediction from Firebase</h1>
-
-    <div id="prediction-result">
-      <!-- The result will be dynamically updated here -->
-    </div>
-
+    <div class="section-title">Latest Sensor Data</div>
     <div id="sensor-data">
-      <!-- The sensor data will be dynamically updated here -->
+      <!-- Sensor values will be updated here -->
     </div>
+  </div>
 
+  <div class="container">
+    <div class="section-title">Shelf Life Prediction</div>
+    <div id="prediction-result">
+      <!-- Prediction will be updated here -->
+    </div>
   </div>
 
   <script>
@@ -98,18 +122,18 @@
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            document.getElementById('prediction-result').innerHTML = `<p><strong>Error:</strong> ${data.error}</p>`;
+            document.getElementById('prediction-result').innerHTML = `<p class="data-line"><strong>Error:</strong> ${data.error}</p>`;
             return;
           }
 
-          // Update the prediction
-          document.getElementById('prediction-result').innerHTML = `<p><strong>Prediction:</strong> ${data.prediction}</p>`;
-
-          // Update the sensor data
           document.getElementById('sensor-data').innerHTML = `
-            <p><strong>Methane Level:</strong> ${data.methane} ppm</p>
-            <p><strong>Temperature:</strong> ${data.temperature} °C</p>
-            <p><strong>Humidity:</strong> ${data.humidity} %</p>
+            <p class="data-line"><strong>Methane Level:</strong> ${data.methane} ppm</p>
+            <p class="data-line"><strong>Temperature:</strong> ${data.temperature} °C</p>
+            <p class="data-line"><strong>Humidity:</strong> ${data.humidity} %</p>
+          `;
+
+          document.getElementById('prediction-result').innerHTML = `
+            <p class="data-line"><strong>Prediction:</strong> ${data.prediction}</p>
           `;
         })
         .catch(error => {
@@ -117,10 +141,7 @@
         });
     }
 
-    // Fetch data every 5 seconds
     setInterval(fetchLatestData, 5000);
-
-    // Fetch the latest data immediately when the page loads
     fetchLatestData();
   </script>
 
