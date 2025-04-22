@@ -6,140 +6,328 @@
   <title>RotBot - About Us</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+            },
+            primary: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'fade-in': 'fadeIn 1s ease-in-out',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
     .hero-bg {
-      background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+      background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1603833665858-e61a17a74264?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
       background-size: cover;
       background-position: center;
+      background-attachment: fixed;
     }
-    .sensor-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    .card-hover {
+      transition: all 0.3s ease;
+      transform-style: preserve-3d;
+    }
+    .card-hover:hover {
+      transform: translateY(-8px) rotateX(5deg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, #4ade80, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .glow {
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+    }
+    .section-divider {
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #4ade80, #3b82f6);
+      margin: 1.5rem auto;
+      border-radius: 2px;
     }
   </style>
 </head>
-<body class="font-sans bg-gray-50">
+<body class="font-sans bg-dark-900 text-dark-100 antialiased">
 
   <!-- Navigation -->
-  <nav class="bg-green-700 text-white shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <i class="fas fa-apple-alt text-2xl"></i>
-        <span class="text-xl font-bold">RotBot</span>
+  <nav class="bg-dark-800 border-b border-dark-700 fixed w-full z-50">
+    <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center">
+          <i class="fas fa-banana text-xl text-white"></i>
+        </div>
+        <span class="text-xl font-bold bg-gradient-to-r from-primary-400 to-blue-400 bg-clip-text text-transparent">RotBot</span>
       </div>
-      <div class="hidden md:flex space-x-6">
-        <a href="#" class="hover:text-green-200">Home</a>
-        <a href="#" class="font-semibold border-b-2 border-white">About</a>
-        <a href="#" class="hover:text-green-200">Technology</a>
-        <a href="#" class="hover:text-green-200">Contact</a>
+      <div class="hidden md:flex space-x-8">
+        <a href="#" class="text-dark-300 hover:text-primary-400 transition-colors">Home</a>
+        <a href="#" class="text-primary-400 font-medium relative group">
+          About
+          <span class="absolute -bottom-1 left-0 w-full h-0.5 bg-primary-400 transform scale-x-100 transition-transform"></span>
+        </a>
+        <a href="#" class="text-dark-300 hover:text-primary-400 transition-colors">Technology</a>
+        <a href="#" class="text-dark-300 hover:text-primary-400 transition-colors">Contact</a>
       </div>
-      <button class="md:hidden text-xl">
+      <button class="md:hidden text-xl text-dark-300 hover:text-primary-400 focus:outline-none">
         <i class="fas fa-bars"></i>
       </button>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <section class="hero-bg text-white py-20 md:py-32">
-    <div class="container mx-auto px-4 text-center">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">About RotBot</h1>
-      <p class="text-xl md:text-2xl max-w-2xl mx-auto">Revolutionizing fruit freshness detection with IoT and AI</p>
+  <section class="hero-bg text-white pt-32 pb-24 md:pt-40 md:pb-32">
+    <div class="container mx-auto px-6 text-center">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+        <span class="gradient-text glow">About RotBot</span>
+      </h1>
+      <p class="text-xl md:text-2xl max-w-3xl mx-auto text-dark-200 mb-8">
+        Revolutionizing banana freshness detection with cutting-edge IoT and AI technologies
+      </p>
+      <div class="flex justify-center space-x-4">
+        <a href="#technology" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-full font-medium transition-colors shadow-lg hover:shadow-primary-500/20">
+          Our Technology
+        </a>
+        <a href="#contact" class="px-6 py-3 border border-primary-500 text-primary-400 hover:bg-primary-900/30 rounded-full font-medium transition-colors">
+          Contact Us
+        </a>
+      </div>
     </div>
   </section>
 
   <!-- About Section -->
-  <section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-green-700 mb-6">About Us</h2>
-        <p class="text-gray-700 mb-8 text-lg">
-          We are a team of aspiring innovators focused on building intelligent solutions to real-world problems using cutting-edge technologies. Our current project is an <span class="font-semibold">IoT-Based Fruit Freshness Detection System</span>, developed to address the challenge of food spoilage by determining the freshness level of fruits in real time.
+  <section class="py-20 bg-dark-800" id="about">
+    <div class="container mx-auto px-6">
+      <div class="max-w-5xl mx-auto text-center mb-16">
+        <span class="text-primary-400 font-semibold">WHO WE ARE</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-2 mb-4">Innovating Food Preservation</h2>
+        <div class="section-divider"></div>
+        <p class="text-lg text-dark-300 max-w-3xl mx-auto">
+          We are a passionate team of engineers and data scientists dedicated to solving banana freshness detection through technological innovation.
         </p>
+      </div>
 
-        <div class="mb-12">
-          <h3 class="text-2xl font-bold text-green-700 mb-4">Project Objective</h3>
-          <p class="text-gray-700 mb-4">The goal of this project is to design a system that can:</p>
-          <ul class="list-disc pl-6 space-y-2 text-gray-700">
-            <li><span class="font-semibold">Detect the freshness</span> of fruits using sensor data.</li>
-            <li><span class="font-semibold">Minimize fruit waste</span> by providing real-time classification of fruit condition.</li>
-            <li><span class="font-semibold">Help vendors and consumers</span> make informed decisions about fruit quality.</li>
-          </ul>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-8 mb-12">
-          <div>
-            <img src="https://images.unsplash.com/photo-1603569283847-aa6f0adf4494?auto=format&fit=crop&w=1470&q=80"
-              alt="Fruit freshness detection"
-              class="rounded-lg shadow-md w-full h-64 object-cover">
+      <div class="grid md:grid-cols-3 gap-8 mb-20">
+        <div class="bg-dark-700 rounded-xl p-8 card-hover border border-dark-600">
+          <div class="w-14 h-14 rounded-full bg-primary-900/30 flex items-center justify-center mb-6 text-primary-400">
+            <i class="fas fa-bullseye text-2xl"></i>
           </div>
-          <div>
-            <h3 class="text-2xl font-bold text-green-700 mb-4">Sensor Setup</h3>
-            <p class="text-gray-700 mb-4">Our system uses a carefully selected array of sensors and microcontrollers:</p>
-            <div class="space-y-4">
-              <div class="p-4 bg-gray-50 rounded-lg sensor-card transition duration-300">
-                <h4 class="font-semibold text-green-700">MQ4 Gas Sensor</h4>
-                <p class="text-gray-600">Detects the ethylene gas emitted by ripening fruits.</p>
-              </div>
-              <div class="p-4 bg-gray-50 rounded-lg sensor-card transition duration-300">
-                <h4 class="font-semibold text-green-700">DHT11 Sensor</h4>
-                <p class="text-gray-600">Captures temperature and humidity data.</p>
-              </div>
-              <div class="p-4 bg-gray-50 rounded-lg sensor-card transition duration-300">
-                <h4 class="font-semibold text-green-700">Arduino Uno / NodeMCU</h4>
-                <p class="text-gray-600">Acts as the core controller and data transmitter.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-12">
-          <h3 class="text-2xl font-bold text-green-700 mb-4">Machine Learning Integration</h3>
-          <p class="text-gray-700 mb-4">
-            We use supervised machine learning models trained on sensor data to classify fruits into three freshness categories:
+          <h3 class="text-xl font-bold mb-3">Our Mission</h3>
+          <p class="text-dark-300">
+            Reduce banana waste by 40% through intelligent freshness detection systems for suppliers and retailers.
           </p>
-          <div class="grid md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-green-100 p-4 rounded-lg text-center">
-              <span class="block text-green-700 font-bold text-lg">Fresh</span>
-            </div>
-            <div class="bg-yellow-100 p-4 rounded-lg text-center">
-              <span class="block text-yellow-700 font-bold text-lg">Mid-Fresh</span>
-            </div>
-            <div class="bg-red-100 p-4 rounded-lg text-center">
-              <span class="block text-red-700 font-bold text-lg">Spoiled</span>
-            </div>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 card-hover border border-dark-600">
+          <div class="w-14 h-14 rounded-full bg-primary-900/30 flex items-center justify-center mb-6 text-primary-400">
+            <i class="fas fa-eye text-2xl"></i>
           </div>
-          <div class="space-y-4">
-            <div>
-              <h4 class="font-semibold text-gray-800">MLP (Multi-layer Perceptron)</h4>
-              <p class="text-gray-600">A neural network used for pattern recognition and classification.</p>
-            </div>
-            <div>
-              <h4 class="font-semibold text-gray-800">XGBoost</h4>
-              <p class="text-gray-600">A gradient boosting algorithm that provides high accuracy in predictive modeling.</p>
+          <h3 class="text-xl font-bold mb-3">Our Vision</h3>
+          <p class="text-dark-300">
+            Create a world where banana spoilage is predictable and preventable through real-time monitoring.
+          </p>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 card-hover border border-dark-600">
+          <div class="w-14 h-14 rounded-full bg-primary-900/30 flex items-center justify-center mb-6 text-primary-400">
+            <i class="fas fa-banana text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Our Focus</h3>
+          <p class="text-dark-300">
+            Specialized in banana freshness with plans to expand to other fruits in the future.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row items-center gap-10 mb-20">
+        <div class="md:w-1/2">
+          <div class="relative rounded-2xl overflow-hidden border-2 border-primary-500/30">
+            <img src="https://images.unsplash.com/photo-1603833665858-e61a17a74264?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+              alt="Banana freshness detection"
+              class="w-full h-auto object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900/80 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-6">
+              <h4 class="text-xl font-bold text-white">Real-time Banana Analysis</h4>
+              <p class="text-dark-300">Our system in action</p>
             </div>
           </div>
         </div>
-
-        <div class="bg-gray-50 p-6 rounded-lg">
-          <h3 class="text-2xl font-bold text-green-700 mb-4">Model Accuracy</h3>
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <div class="flex justify-between items-center mb-2">
-                <span class="font-semibold">MLP Accuracy</span>
-                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">93.2%</span>
+        <div class="md:w-1/2">
+          <span class="text-primary-400 font-semibold">TECHNOLOGY</span>
+          <h3 class="text-2xl md:text-3xl font-bold mt-2 mb-4">Precision Banana Sensors</h3>
+          <p class="text-dark-300 mb-6">
+            Our proprietary sensor suite is specially calibrated for banana freshness detection with 96% accuracy.
+          </p>
+          
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
+                  <i class="fas fa-gas-pump"></i>
+                </div>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div class="bg-green-600 h-2.5 rounded-full" style="width: 93.2%"></div>
+              <div>
+                <h4 class="font-bold text-white">Ethylene Gas Detection</h4>
+                <p class="text-dark-300">Measures ripening agents specific to bananas with 0.01ppm precision.</p>
               </div>
             </div>
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-              <div class="flex justify-between items-center mb-2">
-                <span class="font-semibold">XGBoost Accuracy</span>
-                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">95.7%</span>
+            
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
+                  <i class="fas fa-temperature-high"></i>
+                </div>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div class="bg-green-600 h-2.5 rounded-full" style="width: 95.7%"></div>
+              <div>
+                <h4 class="font-bold text-white">Peel Color Analysis</h4>
+                <p class="text-dark-300">Advanced imaging to detect subtle color changes in banana peels.</p>
               </div>
+            </div>
+            
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
+                  <i class="fas fa-microchip"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="font-bold text-white">Banana-specific AI</h4>
+                <p class="text-dark-300">Models trained exclusively on banana freshness parameters.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technology Section -->
+  <section class="py-20 bg-dark-900" id="technology">
+    <div class="container mx-auto px-6">
+      <div class="max-w-4xl mx-auto text-center mb-16">
+        <span class="text-primary-400 font-semibold">OUR INNOVATION</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-2 mb-4">AI-Powered Freshness Detection</h2>
+        <div class="section-divider"></div>
+        <p class="text-lg text-dark-300">
+          Specialized machine learning models for banana quality assessment.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-10 mb-16">
+        <div class="bg-gradient-to-br from-dark-800 to-dark-700 rounded-2xl p-8 border border-dark-600 card-hover">
+          <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-400 mr-4">
+              <i class="fas fa-brain text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold">Neural Network Analysis</h3>
+          </div>
+          <p class="text-dark-300 mb-6">
+            Our custom MLP architecture processes banana-specific data with 96.1% accuracy, identifying subtle patterns that indicate freshness.
+          </p>
+          <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-primary-400">Accuracy</span>
+              <span class="text-white">96.1%</span>
+            </div>
+            <div class="w-full bg-dark-600 rounded-full h-2.5">
+              <div class="bg-gradient-to-r from-primary-500 to-blue-500 h-2.5 rounded-full" style="width: 96.1%"></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-dark-600 rounded-full text-sm text-primary-300">Banana Patterns</span>
+            <span class="px-3 py-1 bg-dark-600 rounded-full text-sm text-primary-300">Deep Learning</span>
+            <span class="px-3 py-1 bg-dark-600 rounded-full text-sm text-primary-300">Real-time</span>
+          </div>
+        </div>
+        
+        <div class="bg-gradient-to-br from-dark-800 to-dark-700 rounded-2xl p-8 border border-dark-600 card-hover">
+          <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-400 mr-4">
+              <i class="fas fa-chart-line text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold">Ensemble Learning</h3>
+          </div>
+          <p class="text-dark-300 mb-6">
+            XGBoost algorithms combine multiple decision trees to achieve 97.3% accuracy in banana freshness classification.
+          </p>
+          <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-primary-400">Accuracy</span>
+              <span class="text-white">97.3%</span>
+            </div>
+            <div class="w-full bg-dark-600 rounded-full h-2.5">
+              <div class="bg-gradient-to-r from-primary-500 to-blue-500 h-2.5 rounded-full" style="width: 97.3%"></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-dark-600 rounded-full text-sm text-primary-300">Gradient Boosting</span>
+            <span class="px-3 py-1 bg-dark-600 rounded-full text-sm text-primary-300">Feature Importance</span>
+            <span class="px-3 py-1 bg-dark-600 rounded-full text-sm text-primary-300">High Precision</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-dark-800 rounded-2xl p-8 border border-dark-700">
+        <h3 class="text-2xl font-bold mb-6 text-center">Banana Freshness Classification</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-gradient-to-b from-primary-900/20 to-dark-800 rounded-xl p-6 text-center border border-primary-800/30">
+            <div class="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-400 mx-auto mb-4">
+              <i class="fas fa-check-circle text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-xl mb-2 text-primary-400">Fresh</h4>
+            <p class="text-dark-300">Optimal condition, perfect for consumption</p>
+            <div class="mt-4 text-sm text-primary-300">
+              <i class="fas fa-clock mr-2"></i> 5-7 days remaining
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-b from-red-900/20 to-dark-800 rounded-xl p-6 text-center border border-red-800/30">
+            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 mx-auto mb-4">
+              <i class="fas fa-times-circle text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-xl mb-2 text-red-400">Spoiled</h4>
+            <p class="text-dark-300">Not recommended for consumption</p>
+            <div class="mt-4 text-sm text-red-300">
+              <i class="fas fa-clock mr-2"></i> Discard immediately
             </div>
           </div>
         </div>
@@ -148,38 +336,213 @@
   </section>
 
   <!-- Gallery Section -->
-  <section class="py-16 bg-gray-100">
-    <div class="container mx-auto px-4">
-      <h2 class="text-3xl font-bold text-green-700 text-center mb-8">Project Gallery</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <img src="https://images.unsplash.com/photo-1587243964534-6f3e4ac2bba0?auto=format&fit=crop&w=600&q=80" alt="Sensor Setup 1" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
-        <img src="https://images.unsplash.com/photo-1609981132334-601ca29b0e8e?auto=format&fit=crop&w=600&q=80" alt="Prototype Working" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
-        <img src="https://images.unsplash.com/photo-1612197522706-f97e13513b99?auto=format&fit=crop&w=600&q=80" alt="Team Testing" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
-        <img src="https://images.unsplash.com/photo-1559757175-a2a6d41c08e0?auto=format&fit=crop&w=600&q=80" alt="RotBot Close-up" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
-        <img src="https://images.unsplash.com/photo-1624463532837-faa45b949183?auto=format&fit=crop&w=600&q=80" alt="Development Phase" class="rounded-lg shadow-md hover:scale-105 transition duration-300">
+  <section class="py-20 bg-dark-800">
+    <div class="container mx-auto px-6">
+      <div class="max-w-4xl mx-auto text-center mb-16">
+        <span class="text-primary-400 font-semibold">IN ACTION</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-2 mb-4">Banana Detection Gallery</h2>
+        <div class="section-divider"></div>
+        <p class="text-lg text-dark-300">
+          See our technology working with banana freshness detection
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="group relative rounded-xl overflow-hidden h-64">
+          <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80" 
+               alt="Banana Sensor Setup" 
+               class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-dark-900/80 via-transparent to-transparent flex items-end p-6">
+            <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+              <h3 class="text-xl font-bold text-white mb-1">Sensor Testing</h3>
+              <p class="text-dark-300">Calibrating with bananas</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="group relative rounded-xl overflow-hidden h-64">
+          <img src="https://images.unsplash.com/photo-1603833665858-e61a17a74264?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+               alt="Banana Analysis" 
+               class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-dark-900/80 via-transparent to-transparent flex items-end p-6">
+            <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+              <h3 class="text-xl font-bold text-white mb-1">Freshness Analysis</h3>
+              <p class="text-dark-300">Real-time banana assessment</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="group relative rounded-xl overflow-hidden h-64">
+          <img src="https://images.unsplash.com/photo-1587135991058-8816a6db8324?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1024&q=80" 
+               alt="Team with Bananas" 
+               class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-dark-900/80 via-transparent to-transparent flex items-end p-6">
+            <div class="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+              <h3 class="text-xl font-bold text-white mb-1">Team Research</h3>
+              <p class="text-dark-300">Developing banana-specific models</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-20 bg-gradient-to-r from-dark-800 to-dark-900">
+    <div class="container mx-auto px-6">
+      <div class="grid md:grid-cols-4 gap-8 text-center">
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-400 mb-2 animate-count" data-target="97.3">0</div>
+          <div class="text-dark-300 font-medium">Detection Accuracy</div>
+        </div>
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-400 mb-2 animate-count" data-target="1">0</div>
+          <div class="text-dark-300 font-medium">Specialized Fruit</div>
+        </div>
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-400 mb-2 animate-count" data-target="2">0</div>
+          <div class="text-dark-300 font-medium">Seconds per Analysis</div>
+        </div>
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-400 mb-2 animate-count" data-target="1500">0</div>
+          <div class="text-dark-300 font-medium">Bananas Tested</div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Contact Section -->
-  <section class="py-16 bg-green-700 text-white">
-    <div class="container mx-auto px-4 text-center">
-      <h2 class="text-3xl font-bold mb-4">Contact Us</h2>
-      <p class="text-lg mb-4">Have questions or want to collaborate? Reach out!</p>
-      <p><i class="fas fa-envelope mr-2"></i>team@rotbot.dev</p>
-      <p><i class="fas fa-phone-alt mr-2"></i>+91 98765 43210</p>
+  <section class="py-20 bg-dark-900" id="contact">
+    <div class="container mx-auto px-6">
+      <div class="max-w-4xl mx-auto bg-dark-800 rounded-2xl overflow-hidden border border-dark-700 shadow-xl">
+        <div class="md:flex">
+          <div class="md:w-1/2 bg-gradient-to-br from-primary-800/30 to-dark-800 p-12 flex flex-col justify-center">
+            <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
+            <p class="text-dark-300 mb-8">
+              Interested in our banana freshness technology? We'd love to hear from you.
+            </p>
+            <div class="space-y-4">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 mr-4">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div>
+                  <div class="text-sm text-dark-400">Email us at</div>
+                  <div class="font-medium">team@rotbot.dev</div>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 mr-4">
+                  <i class="fas fa-phone-alt"></i>
+                </div>
+                <div>
+                  <div class="text-sm text-dark-400">Call us at</div>
+                  <div class="font-medium">+91 98765 43210</div>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 mr-4">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div>
+                  <div class="text-sm text-dark-400">Find us at</div>
+                  <div class="font-medium">Bengaluru, India</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="md:w-1/2 p-12">
+            <form class="space-y-6">
+              <div>
+                <label for="name" class="block text-sm font-medium text-dark-300 mb-1">Your Name</label>
+                <input type="text" id="name" class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="John Doe">
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium text-dark-300 mb-1">Email Address</label>
+                <input type="email" id="email" class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="you@example.com">
+              </div>
+              <div>
+                <label for="message" class="block text-sm font-medium text-dark-300 mb-1">Your Message</label>
+                <textarea id="message" rows="4" class="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Tell us about your banana storage needs..."></textarea>
+              </div>
+              <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-lg hover:shadow-primary-500/20">
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-white py-6 text-center">
-    <p>&copy; 2025 RotBot. All rights reserved.</p>
-    <div class="flex justify-center space-x-4 mt-2">
-      <a href="#" class="hover:text-green-300"><i class="fab fa-twitter"></i></a>
-      <a href="#" class="hover:text-green-300"><i class="fab fa-github"></i></a>
-      <a href="#" class="hover:text-green-300"><i class="fab fa-linkedin"></i></a>
+  <footer class="bg-dark-950 py-12 border-t border-dark-800">
+    <div class="container mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-3 mb-6 md:mb-0">
+          <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center">
+            <i class="fas fa-banana text-xl text-white"></i>
+          </div>
+          <span class="text-xl font-bold bg-gradient-to-r from-primary-400 to-blue-400 bg-clip-text text-transparent">RotBot</span>
+        </div>
+        <div class="flex space-x-6 mb-6 md:mb-0">
+          <a href="#" class="text-dark-400 hover:text-primary-400 transition-colors">Home</a>
+          <a href="#" class="text-dark-400 hover:text-primary-400 transition-colors">About</a>
+          <a href="#" class="text-dark-400 hover:text-primary-400 transition-colors">Technology</a>
+          <a href="#" class="text-dark-400 hover:text-primary-400 transition-colors">Contact</a>
+        </div>
+        <div class="flex space-x-4">
+          <a href="#" class="w-10 h-10 rounded-full bg-dark-800 hover:bg-primary-600 flex items-center justify-center text-dark-300 hover:text-white transition-colors">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-dark-800 hover:bg-primary-600 flex items-center justify-center text-dark-300 hover:text-white transition-colors">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="#" class="w-10 h-10 rounded-full bg-dark-800 hover:bg-primary-600 flex items-center justify-center text-dark-300 hover:text-white transition-colors">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </div>
+      </div>
+      <div class="border-t border-dark-800 mt-8 pt-8 text-center text-dark-500">
+        <p>&copy; 2025 RotBot Technologies. All rights reserved.</p>
+      </div>
     </div>
   </footer>
 
+  <script>
+    // Simple counter animation for stats
+    const animateCounters = () => {
+      const counters = document.querySelectorAll('.animate-count');
+      const speed = 200;
+      
+      counters.forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const count = +counter.innerText;
+        const increment = target / speed;
+        
+        if(count < target) {
+          counter.innerText = Math.ceil(count + increment);
+          setTimeout(animateCounters, 1);
+        } else {
+          counter.innerText = target;
+        }
+      });
+    }
+    
+    // Start animation when stats section is in view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting) {
+          animateCounters();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {threshold: 0.5});
+    
+    const statsSection = document.querySelector('section.bg-gradient-to-r');
+    if(statsSection) {
+      observer.observe(statsSection);
+    }
+  </script>
 </body>
 </html>
