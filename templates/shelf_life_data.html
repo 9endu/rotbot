@@ -1,90 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Shelf Life Prediction</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
     <style>
+        /* Global Styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(to right, #020c1b, #001f1f);
+            color: #00ffaa;
+            margin: 0;
+            padding: 20px;
         }
+
         .container {
-            margin-top: 30px;
+            max-width: 900px;
+            margin: auto;
+            background: rgba(0, 20, 30, 0.85);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0, 255, 170, 0.15), 0 0 45px rgba(0, 255, 170, 0.1);
         }
+
+        h1 {
+            text-align: center;
+            color: #00ffaa;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 12px #00ffaa;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: #00ffaa;
+            box-shadow: 0 0 10px #00ffaa;
+        }
+
         .card {
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #00ffaa33;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 12px #00ffaa20;
         }
+
         .card-header {
-            font-size: 1.25rem;
-            background-color: #007bff;
-            color: white;
+            background: transparent;
+            color: #00ffaa;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-bottom: 1px solid #00ffaa44;
+            padding: 16px 20px;
         }
+
         .card-body {
+            padding: 18px 20px;
             font-size: 1rem;
+            color: #aaffff;
         }
 
-.home-btn {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  background-color: #0e743c;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-.home-btn:hover {
-  background-color: #09592f;
-  transform: translateX(-3px);
-  color: white; /* Ensures it doesn't turn blue */
-  text-decoration: none; /* Prevents underline */
-}
+        .alert-danger {
+            background-color: rgba(255, 0, 60, 0.1);
+            border: 1px solid rgba(255, 0, 60, 0.4);
+            color: #ff4b7d;
+            box-shadow: 0 0 12px #ff4b7d33;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 255, 0, 0.1);
+            border: 1px solid rgba(255, 255, 0, 0.4);
+            color: #ffff88;
+            box-shadow: 0 0 12px #ffff8844;
+        }
+
+        strong {
+            color: #00ffff;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            background-color: #0e743c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .home-btn:hover {
+            background-color: #09592f;
+            transform: translateX(-3px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .file-upload-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .custom-file-input {
+            position: relative;
+            display: inline-block;
+            padding: 12px 30px;
+            color: #00ffaa;
+            font-size: 1rem;
+            font-family: 'Orbitron', sans-serif;
+            background: transparent;
+            border: 2px solid #00ffaa88;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px #00ffaa55;
+        }
+
+        .custom-file-input:hover {
+            background-color: #00ffaa22;
+            box-shadow: 0 0 12px #00ffaa;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label[for="sensorFile"] {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
+
+    <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
+
     <div class="container">
-        <h1 class="text-center mb-4">Shelf Life Prediction Based on Sensor Data</h1>
+        <h1>Shelf Life Prediction Based on Sensor Data</h1>
+
+        <!-- File Upload Section -->
+        <div class="file-upload-section">
+            <form method="POST" enctype="multipart/form-data">
+                <input type="file" name="sensor_file" id="sensorFile" accept=".csv" />
+                <label for="sensorFile" class="custom-file-input">Choose Sensor CSV</label>
+                <button type="submit" class="custom-file-input" style="margin-left: 10px;">Upload</button>
+            </form>
+        </div>
 
         <!-- Display Error Message -->
         {% if error %}
-            <div class="alert alert-danger">
-                {{ error }}
-            </div>
+        <div class="alert alert-danger">
+            {{ error }}
+        </div>
         {% endif %}
 
         <!-- Display Sensor Data and Prediction -->
         {% if prediction %}
-            <div class="card">
-                <div class="card-header">
-                    Latest Sensor Data
-                </div>
-                <div class="card-body">
-                    <p><strong>Methane Level:</strong> {{ methane }} ppm</p>
-                    <p><strong>Temperature:</strong> {{ temperature }} °C</p>
-                    <p><strong>Humidity:</strong> {{ humidity }} %</p>
-                </div>
+        <div class="card">
+            <div class="card-header">
+                Latest Sensor Data
             </div>
+            <div class="card-body">
+                <p><strong>Methane Level:</strong> {{ methane }} ppm</p>
+                <p><strong>Temperature:</strong> {{ temperature }} °C</p>
+                <p><strong>Humidity:</strong> {{ humidity }} %</p>
+            </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header">
-                    Shelf Life Prediction
-                </div>
-                <div class="card-body">
-                    <p><strong>Prediction:</strong> {{ prediction }}</p>
-                </div>
+        <div class="card">
+            <div class="card-header">
+                Shelf Life Prediction
             </div>
+            <div class="card-body">
+                <p><strong>Prediction:</strong> {{ prediction }}</p>
+            </div>
+        </div>
         {% else %}
-            <div class="alert alert-warning">
-                No data available for prediction.
-            </div>
+        <div class="alert alert-warning">
+            No data available for prediction.
+        </div>
         {% endif %}
     </div>
 
@@ -92,5 +210,6 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>
