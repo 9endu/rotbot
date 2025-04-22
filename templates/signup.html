@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,7 +13,7 @@
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
+      background: #121212;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -21,18 +21,24 @@
     }
 
     .container {
-      background: white;
+      background: #1e1e1e;
       padding: 2rem;
       border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
       width: 400px;
       position: relative;
+      border: 1px solid #555;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .container:hover {
+      box-shadow: 0 0 5px 1px #4ef1c1, 0 0 10px 2px #4ef1c1;
     }
 
     h2 {
       text-align: center;
       margin-bottom: 1.5rem;
-      color: #333;
+      color: #ffffff;
     }
 
     form {
@@ -43,40 +49,46 @@
     input {
       padding: 0.8rem 1rem;
       margin-bottom: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid #555;
       border-radius: 8px;
       font-size: 1rem;
+      background-color: #2c2c2c;
+      color: #f0f0f0;
       transition: 0.3s;
     }
 
     input:focus {
-      border-color: #007bff;
+      border-color: #4ef1c1;
       outline: none;
+      background-color: #333;
     }
 
     button {
-      background: #007bff;
+      background: #4ef1c1;
       color: white;
       padding: 0.8rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     button:hover {
-      background: #0056b3;
+      background: #3be6ad;
+      transform: scale(1.02);
+      box-shadow: 0 4px 10px rgba(78, 241, 193, 0.3);
     }
 
     .link {
       text-align: center;
       margin-top: 1rem;
       font-size: 0.9rem;
+      color: #aaa;
     }
 
     .link a {
-      color: #007bff;
+      color: #4ef1c1;
       text-decoration: none;
     }
 
@@ -89,7 +101,7 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(18, 18, 18, 0.95);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -99,7 +111,7 @@
 
     .loader-text {
       font-size: 2rem;
-      color: #007bff;
+      color: #4ef1c1;
       animation: blink 1s infinite;
     }
 
@@ -124,10 +136,9 @@
         <input type="text" name="location" placeholder="Location / Region" required>
         <input type="text" name="name" placeholder="Your Name" required pattern="[A-Za-z\s]{2,}">
         <input type="email" name="email" placeholder="Email Address" required>
-        <input type="tel" name="phone" placeholder="Phone Number" required pattern="\d{10}">
+        <input type="tel" name="phone" placeholder="Phone Number" required pattern="[1-9][0-9]{9}">
         <input type="password" name="password" placeholder="Password" required minlength="6">
-        
-      <button type="submit">Sign Up</button>
+        <button type="submit">Sign Up</button>
     </form>
     <div class="link">
       Already have an account? <a href="/login">Login</a>
@@ -145,61 +156,60 @@
 
     const form = document.querySelector("form");
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    const companyName = form.company_name.value.trim();
-    const industry = form.industry.value.trim();
-    const location = form.location.value.trim();
-    const name = form.name.value.trim();
-    const email = form.email.value.trim();
-    const phone = form.phone.value.trim();
-    const password = form.password.value;
+      const companyName = form.company_name.value.trim();
+      const industry = form.industry.value.trim();
+      const location = form.location.value.trim();
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const phone = form.phone.value.trim();
+      const password = form.password.value;
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/;
-    const nameRegex = /^[A-Za-z\s]{2,}$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^[1-9]\d{9}$/; // updated: 10 digits and not starting with 0
+      const nameRegex = /^[A-Za-z\s]{2,}$/;
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
 
-    if (companyName.length < 2) {
-      alert("Company name must be at least 2 characters.");
-      return;
-    }
+      if (companyName.length < 2) {
+        alert("Company name must be at least 2 characters.");
+        return;
+      }
 
-    if (industry === "") {
-      alert("Industry type cannot be empty.");
-      return;
-    }
+      if (industry === "") {
+        alert("Industry type cannot be empty.");
+        return;
+      }
 
-    if (location === "") {
-      alert("Location/Region cannot be empty.");
-      return;
-    }
+      if (location === "") {
+        alert("Location/Region cannot be empty.");
+        return;
+      }
 
-    if (!nameRegex.test(name)) {
-      alert("Name must be at least 2 characters and contain only letters and spaces.");
-      return;
-    }
+      if (!nameRegex.test(name)) {
+        alert("Name must be at least 2 characters and contain only letters and spaces.");
+        return;
+      }
 
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
 
-    if (!phoneRegex.test(phone)) {
-      alert("Phone number must be 10 digits.");
-      return;
-    }
+      if (!phoneRegex.test(phone)) {
+        alert("Phone number must be 10 digits and cannot start with 0.");
+        return;
+      }
 
-    if (!passwordRegex.test(password)) {
-      alert("Password must be at least 6 characters and contain at least one letter and one number.");
-      return;
-    }
+      if (!passwordRegex.test(password)) {
+        alert("Password must be at least 6 characters and contain at least one letter and one number.");
+        return;
+      }
 
-    // If all validations pass
-    document.querySelector('.loader').style.display = 'flex';
-    form.submit();
-  });
+      document.querySelector('.loader').style.display = 'flex';
+      form.submit();
+    });
   </script>
 </body>
 </html>
