@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shelf Life Prediction</title>
+  <title>Prediction from Firebase</title>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-
   <style>
     body {
-      margin: 0;
       font-family: 'Orbitron', sans-serif;
       background: linear-gradient(to right, #020c1b, #001f1f);
       color: #00ffaa;
@@ -21,6 +17,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    .container {
+      background: rgba(0, 20, 30, 0.85);
+      border-radius: 16px;
+      padding: 30px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 0 25px rgba(0, 255, 170, 0.15), 0 0 45px rgba(0, 255, 170, 0.1);
+      margin-bottom: 30px;
+      border: 1px solid #00ffaa33;
+      text-align: center;
     }
 
     h1 {
@@ -44,10 +52,20 @@
       box-shadow: 0 0 10px #00ffaa;
     }
 
-    .home-btn {
+    .result, .error {
+      font-size: 1.1em;
+      color: #aaffff;
+      margin-top: 20px;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .custom-wrapper .home-btn {
       position: absolute;
-      top: 30px;
-      left: 30px;
+      top: 20px;
+      left: 20px;
       background-color: #0e743c;
       color: white;
       padding: 10px 20px;
@@ -56,36 +74,15 @@
       font-weight: 500;
       transition: all 0.3s ease;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
     }
-
-    .home-btn:hover {
+    .custom-wrapper .home-btn:hover {
       background-color: #09592f;
       transform: translateX(-3px);
-      color: white;
-      text-decoration: none;
     }
 
-    .container {
-      background: rgba(0, 20, 30, 0.85);
-      border-radius: 16px;
-      padding: 30px;
-      width: 90%;
-      max-width: 700px;
-      box-shadow: 0 0 25px rgba(0, 255, 170, 0.15), 0 0 45px rgba(0, 255, 170, 0.1);
-      margin-bottom: 30px;
-      border: 1px solid #00ffaa33;
-    }
-
-    .section-title {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #00ffaa;
-      border-bottom: 1px solid #00ffaa44;
-      padding-bottom: 10px;
-    }
-
-    .data-line {
+    #prediction-result p,
+    #sensor-data p {
       margin: 10px 0;
       font-size: 1rem;
       color: #aaffff;
@@ -98,23 +95,21 @@
 </head>
 <body>
 
-  <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
-
-  <h1>Shelf Life Prediction Based on Sensor Data</h1>
-
-  <div class="container">
-    <div class="section-title">Latest Sensor Data</div>
-    <div id="sensor-data">
-      <!-- Sensor values will be updated here -->
-    </div>
+  <div class="custom-wrapper">
+    <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
   </div>
-
   <div class="container">
-    <div class="section-title">Shelf Life Prediction</div>
+    <h1>Prediction from Firebase</h1>
+
     <div id="prediction-result">
-      <!-- Prediction will be updated here -->
+      <!-- The result will be dynamically updated here -->
     </div>
-  </div>
+
+    <div id="sensor-data">
+      <!-- The sensor data will be dynamically updated here -->
+    </div>
+
+      </div>
 
   <script>
     function fetchLatestData() {
@@ -122,18 +117,18 @@
         .then(response => response.json())
         .then(data => {
           if (data.error) {
-            document.getElementById('prediction-result').innerHTML = `<p class="data-line"><strong>Error:</strong> ${data.error}</p>`;
+            document.getElementById('prediction-result').innerHTML = `<p class="error"><strong>Error:</strong> ${data.error}</p>`;
             return;
           }
 
-          document.getElementById('sensor-data').innerHTML = `
-            <p class="data-line"><strong>Methane Level:</strong> ${data.methane} ppm</p>
-            <p class="data-line"><strong>Temperature:</strong> ${data.temperature} °C</p>
-            <p class="data-line"><strong>Humidity:</strong> ${data.humidity} %</p>
-          `;
+          // Update the prediction
+          document.getElementById('prediction-result').innerHTML = `<p><strong>Prediction:</strong> ${data.prediction}</p>`;
 
-          document.getElementById('prediction-result').innerHTML = `
-            <p class="data-line"><strong>Prediction:</strong> ${data.prediction}</p>
+          // Update the sensor data
+          document.getElementById('sensor-data').innerHTML = `
+            <p><strong>Methane Level:</strong> ${data.methane} ppm</p>
+            <p><strong>Temperature:</strong> ${data.temperature} °C</p>
+            <p><strong>Humidity:</strong> ${data.humidity} %</p>
           `;
         })
         .catch(error => {
@@ -141,7 +136,10 @@
         });
     }
 
+    // Fetch data every 5 seconds
     setInterval(fetchLatestData, 5000);
+
+    // Fetch the latest data immediately when the page loads
     fetchLatestData();
   </script>
 
