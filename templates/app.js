@@ -1,13 +1,14 @@
 // Initialize Firebase
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
+    apiKey: "AIzaSyAOk65Mg_P1ISLbGRB6I-3HDL-U-hCFO-c",
+    authDomain: "rotbot-b300b.firebaseapp.com",
+    databaseURL: "https://rotbot-b300b-default-rtdb.firebaseio.com",
+    projectId: "rotbot-b300b",
+    storageBucket: "rotbot-b300b.appspot.com",
+    messagingSenderId: "1022382810982",
+    appId: "1:1022382810982:web:cb0f1a631f857de4a18aa7",
+    measurementId: "G-B6S4DC2L03"
+}
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();

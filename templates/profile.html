@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - RotBot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+    
+    :root {
+      --primary: #00df9a;
+      --primary-dark: #00b882;
+      --secondary: #6c757d;
+      --dark: #121212;
+      --dark-gray: #1e1e1e;
+      --medium-gray: #2d2d2d;
+      --light-gray: #3a3a3a;
+      --text: #e0e0e0;
+      --text-light: #f5f5f5;
+      --danger: #ff4d4f;
+      --danger-dark: #d9363e;
+      --success: #52c41a;
+      --warning: #faad14;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--dark);
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .profile-container {
+      max-width: 900px;
+      margin: 70px auto 50px;
+      padding: 40px;
+      background-color: var(--dark-gray);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--medium-gray);
+    }
+    
+    .profile-header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+    
+    .profile-header h1 {
+      color: var(--primary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(0, 223, 154, 0.3);
+    }
+    
+    .profile-header p {
+      color: var(--secondary);
+      font-size: 1.1rem;
+      margin-top: 0;
+    }
+    
+    .profile-section {
+      margin-bottom: 40px;
+      padding: 25px;
+      background-color: var(--medium-gray);
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .profile-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .profile-section h2 {
+      color: var(--primary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .profile-section h2 i {
+      font-size: 1.3rem;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+    
+    .form-group input, 
+    .form-group select {
+      width:  calc(100% - 55px);
+      padding: 12px 15px;
+      background-color: var(--light-gray);
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      font-size: 1rem;
+      color: var(--text);
+      transition: all 0.3s;
+    }
+    
+    .form-group input:focus, 
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 223, 154, 0.2);
+    }
+    
+    .form-group input[readonly] {
+      background-color: var(--dark-gray);
+      color: var(--secondary);
+      border: 1px solid var(--dark-gray);
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background-color: var(--primary);
+      color: var(--dark);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 223, 154, 0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: var(--danger-dark);
+      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+    }
+    
+    .action-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+    
+    .logout-btn, .back-btn {
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+    }
+    
+    .logout-btn {
+      background-color: var(--danger);
+    }
+    
+    .logout-btn:hover {
+      background-color: var(--danger-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: var(--medium-gray);
+      border: 1px solid var(--light-gray);
+    }
+    
+    .back-btn:hover {
+      background-color: var(--light-gray);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .flash-message {
+      padding: 15px 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .flash-success {
+      background-color: rgba(82, 196, 26, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(82, 196, 26, 0.3);
+    }
+    
+    .flash-error {
+      background-color: rgba(255, 77, 79, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(255, 77, 79, 0.3);
+    }
+
+    .danger-zone {
+      border-left-color: var(--danger);
+    }
+
+    .danger-zone p {
+      color: var(--secondary);
+      margin-bottom: 20px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 38px;
+      color: var(--secondary);
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+      .profile-container {
+        margin: 80px 20px 40px;
+        padding: 25px;
+      }
+      
+      .profile-header h1 {
+        font-size: 2.2rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        right: 15px;
+      }
+      
+      .back-btn {
+        left: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="/homepage" class="back-btn">
+    <i class="fas fa-arrow-left"></i> Homepage
+  </a>
+  
+  <div class="action-buttons">
+    <a href="{{ url_for('logout') }}" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+  
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1>USER PROFILE</h1>
+      <p>Manage your account settings and preferences</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    <div class="profile-section">
+      <h2><i class="fas fa-user-cog"></i> Account Information</h2>
+      <form action="/update_profile" method="POST">
+        <div class="form-group">
+          <label for="company_name">Company Name</label>
+          <input type="text" id="company_name" name="company_name" value="{{ user.company_name }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="industry">Industry</label>
+          <select id="industry" name="industry" required>
+            <option value="Food Production" {% if user.industry == 'Food Production' %}selected{% endif %}>Food Production</option>
+            <option value="Agriculture" {% if user.industry == 'Agriculture' %}selected{% endif %}>Agriculture</option>
+            <option value="Retail" {% if user.industry == 'Retail' %}selected{% endif %}>Retail</option>
+            <option value="Other" {% if user.industry == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" name="location" value="{{ user.location }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="name">Contact Name</label>
+          <input type="text" id="name" name="name" value="{{ user.name }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="{{ user.email }}" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" value="{{ user.phone }}" required>
+        </div>
+        
+        <button type="submit" class="btn">
+          <i class="fas fa-save"></i> Update Profile
+        </button>
+      </form>
+    </div>
+    
+    <div class="profile-section">
+      <h2><i class="fas fa-lock"></i> Change Password</h2>
+      <form action="/change_password" method="POST" id="passwordForm">
+        <div class="form-group">
+          <label for="current_password">Current Password</label>
+          <input type="password" id="current_password" name="current_password" required>
+          <i class="fas fa-eye password-toggle" onclick="togglePassword('current_password')"></i>
+        </div>
+        
+        <div class="form-group">
+          <label for="new_password">New Password (min 8 characters)</label>
+          <input type="password" id="new_password" name="new_password" minlength="8" required>
+          <i class="fas fa-eye password-toggle" onclick="togglePassword('new_password')"></i>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirm_password">Confirm New Password</label>
+          <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+          <i class="fas fa-eye password-toggle" onclick="togglePassword('confirm_password')"></i>
+        </div>
+        
+        <button type="submit" class="btn">
+          <i class="fas fa-key"></i> Change Password
+        </button>
+      </form>
+    </div>
+    
+    <div class="profile-section danger-zone">
+      <h2><i class="fas fa-exclamation-triangle"></i> Danger Zone</h2>
+      <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+      <button onclick="confirmDelete()" class="btn btn-danger">
+        <i class="fas fa-trash-alt"></i> Delete Account
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    function confirmDelete() {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this! All your data will be permanently deleted.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff4d4f',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#1e1e1e',
+        color: '#e0e0e0'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/delete_account";
+        }
+      });
+    }
+
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      const icon = input.nextElementSibling;
+      
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+
+    // Client-side password validation
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+      const newPassword = document.getElementById('new_password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      
+      if (newPassword !== confirmPassword) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Error',
+          text: 'New passwords do not match!',
+          icon: 'error',
+          confirmButtonColor: '#00df9a',
+          background: '#1e1e1e',
+          color: '#e0e0e0'
+        });
+        return;
+      }
+      
+      if (newPassword.length < 8) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Error',
+          text: 'Password must be at least 8 characters long!',
+          icon: 'error',
+          confirmButtonColor: '#00df9a',
+          background: '#1e1e1e',
+          color: '#e0e0e0'
+        });
+      }
+    });
+
+    // Add smooth animations to sections when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      const sections = document.querySelectorAll('.profile-section');
+      sections.forEach((section, index) => {
+        setTimeout(() => {
+          section.style.opacity = '1';
+          section.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    });
+  </script>
+  
+  <!-- SweetAlert for beautiful alerts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

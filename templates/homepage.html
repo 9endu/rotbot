@@ -131,6 +131,28 @@
       box-shadow: 0 0 25px rgba(0, 255, 170, 0.6);
     }
 
+    /* Add to your style section */
+.profile-btn {
+  position: fixed;
+  top: 20px;
+  left: 400px; /* Adjust position as needed */
+  padding: 12px 24px;
+  font-size: 1em;
+  background-color: #082c18;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-btn:hover {
+  background-color: #35825a;
+  transform: translateY(-3px);
+  box-shadow: 0 0 15px rgba(6, 142, 96, 0.3);
+}
+
     @keyframes typing {
       from { width: 0; }
       to { width: 100%; }
@@ -241,6 +263,8 @@
 
       <!-- About Us Button -->
       <button class="about-us-btn" onclick="location.href='/about_us'">About Us</button>
+      <!-- Add this near your other buttons in the container -->
+<button class="profile-btn" onclick="location.href='/profile'">My Profile</button>
     </div>
   </div>
 

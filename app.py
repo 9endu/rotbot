@@ -7,7 +7,7 @@ import torch
 import pyrebase
 from torchvision import models, transforms
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory,flash
 
 # Firebase (if used elsewhere in your app)
 import firebase_admin
@@ -188,6 +188,74 @@ def reset_password():
             return redirect(url_for('login', success_message="Password updated successfully"))
 
     return "Something went wrong."
+
+@app.route('/profile')
+def profile():
+    if 'user' not in session:
+        return redirect('/login')
+
+    email_key = session['user'].replace('.', ',')
+    user_data = db.reference(f'companies/{email_key}').get()
+
+    return render_template('profile.html', user=user_data)
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user' not in session:
+        return redirect('/login')
+
+    email_key = session['user'].replace('.', ',')
+    ref = db.reference(f'companies/{email_key}')
+
+    updated_data = {
+        'company_name': request.form['company_name'],
+        'industry': request.form['industry'],
+        'location': request.form['location'],
+        'name': request.form['name'],
+        'phone': request.form['phone'],
+        'email': session['user']  # don't update email
+    }
+
+    ref.update(updated_data)
+    flash('Profile updated successfully!', 'success')
+    return redirect('/profile')
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    if 'user' not in session:
+        return redirect('/login')
+
+    email_key = session['user'].replace('.', ',')
+    ref = db.reference(f'companies/{email_key}')
+    user_data = ref.get()
+
+    current_password = request.form['current_password']
+    new_password = request.form['new_password']
+    confirm_password = request.form['confirm_password']
+
+    if user_data['password'] != current_password:
+        flash('Current password is incorrect.', 'error')
+    elif new_password != confirm_password:
+        flash('New passwords do not match.', 'error')
+    elif len(new_password) < 8:
+        flash('Password must be at least 8 characters.', 'error')
+    else:
+        ref.update({'password': new_password})
+        flash('Password changed successfully!', 'success')
+
+    return redirect('/profile')
+
+@app.route('/delete_account')
+def delete_account():
+    if 'user' not in session:
+        return redirect('/login')
+
+    email_key = session['user'].replace('.', ',')
+    db.reference(f'companies/{email_key}').delete()
+
+    session.clear()
+    flash('Account deleted successfully.', 'success')
+    return redirect('/login')
 
 
 @app.route('/login', methods=['GET', 'POST'])
