@@ -55,12 +55,14 @@
       background-color: #2c2c2c;
       color: #f0f0f0;
       transition: 0.3s;
+      outline: none;
     }
 
     input:focus {
       border-color: #4ef1c1;
-      outline: none;
       background-color: #333;
+      outline: none;
+      box-shadow: none;
     }
 
     button {
@@ -109,6 +111,28 @@
       display: none;
     }
 
+    #suggestions {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      width: 300px;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      position: absolute;
+      z-index: 999;
+    }
+
+    #suggestions li {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    #suggestions li:hover {
+      background-color: #f0f0f0;
+    }
+
     .loader-text {
       font-size: 2rem;
       color: #4ef1c1;
@@ -119,14 +143,6 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
-
-    /* Password Requirements Tooltip */
-    .password-hint {
-      color: #aaa;
-      font-size: 0.8rem;
-      margin-top: -0.5rem;
-      margin-bottom: 1rem;
-    }
   </style>
 </head>
 <body>
@@ -135,22 +151,18 @@
   <div class="loader">
     <span class="loader-text">Loading...</span>
   </div>
-
   <div class="container">
     <h2>Create Account</h2>
     <form method="POST" action="/signup">
-        <input type="text" name="company_name" placeholder="Company Name" required minlength="2">
+        <input type="text" name="company_name" placeholder="Company Name" required minlength="2" style="width: 100%;">
         <input type="text" name="industry" placeholder="Industry Type" required>
-        <input type="text" name="location" placeholder="Location / Region" required>
+        <input type="text" id="location" name="location" placeholder="Location / Region" required>
+        <ul id="suggestions"></ul>
+
         <input type="text" name="name" placeholder="Your Name" required pattern="[A-Za-z\s]{2,}">
         <input type="email" name="email" placeholder="Email Address" required>
         <input type="tel" name="phone" placeholder="Phone Number" required pattern="[1-9][0-9]{9}">
-        <input type="password" name="password" placeholder="Password" required 
-               minlength="6" pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$"
-               title="Must contain at least 6 characters, including one letter, one number, and one special character (@$!%*#?&)">
-        <div class="password-hint">
-          Password must contain: 6+ characters, 1 letter, 1 number, and 1 special character (@$!%*#?&)
-        </div>
+        <input type="password" name="password" placeholder="Password" required minlength="6">
         <button type="submit">Sign Up</button>
     </form>
     <div class="link">
@@ -159,12 +171,34 @@
   </div>
 
   <script>
-    window.addEventListener('beforeunload', () => {
-      document.querySelector('.loader').style.display = 'flex';
-    });
+    document.getElementById('location').addEventListener('input', function (e) {
+      const query = e.target.value.trim();
+      const suggestions = document.getElementById('suggestions');
+      suggestions.innerHTML = '';
 
-    window.addEventListener('load', () => {
-      document.querySelector('.loader').style.display = 'none';
+      if (query.length > 2) {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.length === 0) {
+              suggestions.innerHTML = '<li>No locations found</li>';
+            } else {
+              data.forEach(location => {
+                const listItem = document.createElement('li');
+                listItem.textContent = location.display_name;
+                listItem.addEventListener('click', () => {
+                  document.getElementById('location').value = location.display_name;
+                  suggestions.innerHTML = '';
+                });
+                suggestions.appendChild(listItem);
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching location data:', error);
+            suggestions.innerHTML = '<li>Error retrieving data</li>';
+          });
+      }
     });
 
     const form = document.querySelector("form");
@@ -183,7 +217,7 @@
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const phoneRegex = /^[1-9]\d{9}$/;
       const nameRegex = /^[A-Za-z\s]{2,}$/;
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/;
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
 
       if (companyName.length < 2) {
         alert("Company name must be at least 2 characters.");
@@ -216,7 +250,7 @@
       }
 
       if (!passwordRegex.test(password)) {
-        alert("Password must be at least 6 characters and contain:\n- At least one letter\n- At least one number\n- At least one special character (@$!%*#?&)");
+        alert("Password must be at least 6 characters and contain at least one letter and one number.");
         return;
       }
 
