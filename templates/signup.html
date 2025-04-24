@@ -116,8 +116,7 @@
       padding: 0;
       margin: 0;
       width: 300px;
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
+      background-color: #ffffff;
       max-height: 200px;
       overflow-y: auto;
       position: absolute;
@@ -217,7 +216,8 @@
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const phoneRegex = /^[1-9]\d{9}$/;
       const nameRegex = /^[A-Za-z\s]{2,}$/;
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{6,}$/;
+
 
       if (companyName.length < 2) {
         alert("Company name must be at least 2 characters.");
@@ -250,7 +250,7 @@
       }
 
       if (!passwordRegex.test(password)) {
-        alert("Password must be at least 6 characters and contain at least one letter and one number.");
+        alert("Password must be at least 6 characters and contain at least one letter, one number, and one special character.");
         return;
       }
 

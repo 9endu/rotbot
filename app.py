@@ -269,12 +269,15 @@ def change_password():
     new_password = request.form['new_password']
     confirm_password = request.form['confirm_password']
 
+    # Password validation regex
+    password_pattern = re.compile(r'^(?=.*[0-9])(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{6,}$')
+
     if user_data['password'] != current_password:
         flash('Current password is incorrect.', 'error')
     elif new_password != confirm_password:
         flash('New passwords do not match.', 'error')
-    elif len(new_password) < 8:
-        flash('Password must be at least 8 characters.', 'error')
+    elif not password_pattern.match(new_password):
+        flash('Password must be at least 6 characters and include a number and a special character.', 'error')
     else:
         ref.update({'password': new_password})
         flash('Password changed successfully!', 'success')
