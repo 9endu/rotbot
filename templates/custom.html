@@ -3,37 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RotBot Sensor Prediction</title>
-
-  <!-- Font and Icon Links -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-
+  <title>Custom Sensor Prediction</title>
+   <!-- Font and Icon Links -->
+   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <style>
     body {
       margin: 0;
       height: 100vh;
       background: #040d0d;
+      
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Orbitron', sans-serif;
+      align-items: center;
       color: white;
       overflow: hidden;
     }
-
-    .glow-box {
+    .container {
       background: rgba(22, 22, 22, 0.7);
-      backdrop-filter: blur(20px);
+      padding: 40px;
       border-radius: 20px;
-      padding: 40px 30px;
-      box-shadow: 0 0 25px rgba(0, 255, 170, 0.2), 0 0 45px rgba(0, 255, 170, 0.05);
-      width: 400px;
+      box-shadow: 0 0 25px #00ffcc;
       text-align: center;
-      animation: fadeIn 1s ease-in-out;
-      position: relative;
+      width: 350px;
     }
-
+    .container h2 {
+      color: #00ffcc;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      text-shadow: 0 0 10px #00ffcc;
+    }
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -44,34 +45,31 @@
         transform: scale(1);
       }
     }
-
-    h1 {
-      color: #00ffcc;
-      font-size: 1.8em;
-      margin-bottom: 30px;
-      text-shadow: 0 0 10px #00ffcc;
-    }
-
     input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
+      font-size: 16px;
+      border-radius: 8px;
       border: none;
-      border-radius: 10px;
-      font-size: 1em;
       background: #f1f1f1;
       color: #000;
       box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
       transition: 0.3s ease;
     }
-
     input:focus {
       outline: none;
       background: #fff;
       box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffaa;
     }
-
-    button {
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: -8px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .btn {
       width: 100%;
       padding: 12px;
       margin-top: 20px;
@@ -79,19 +77,22 @@
       font-weight: bold;
       border: none;
       border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
       background: linear-gradient(135deg, #00ffaa, #00cc88);
       color: #000;
       cursor: pointer;
       box-shadow: 0 0 12px #00ffaa;
       transition: all 0.3s ease;
+      
     }
-
-    button:hover {
+    .btn:hover {
       transform: scale(1.03);
       box-shadow: 0 0 18px #00ffaa, 0 0 30px #00ffaa;
+      
     }
-
-    .result {
+    #result {
+      
       margin-top: 20px;
       padding: 12px;
       background: rgba(255, 255, 255, 0.05);
@@ -99,9 +100,8 @@
       font-size: 1.1em;
       color: #00ffaa;
       text-shadow: 0 0 5px #00ffaa;
-    }
-
-    .custom-wrapper .home-btn {
+      display: none;}
+      .custom-wrapper .home-btn {
       position: absolute;
       top: 20px;
       left: 20px;
@@ -123,40 +123,120 @@
   </style>
 </head>
 <body>
-
   <div class="custom-wrapper">
-    <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
 
-    <div class="glow-box">
-      <h1>Custom Sensor Prediction</h1>
-      <form id="customForm">
-        <input type="number" step="any" id="methane" placeholder="Methane level (ppm)" required />
-        <input type="number" step="any" id="temperature" placeholder="Temperature (°C)" required />
-        <input type="number" step="any" id="humidity" placeholder="Humidity (%)" required />
-        <button type="submit">Predict</button>
-      </form>
-      <div class="result" id="result" style="display: none;"></div>
-    </div>
+  <div class="container">
+    <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
+    <h2>Custom Sensor Prediction</h2>
+    <form id="sensorForm">
+      <input type="number" id="methane" placeholder="Methane Value (ppm)" />
+      <div id="methaneError" class="error"></div>
+
+      <input type="number" id="temperature" placeholder="Temperature (°C)" />
+      <div id="temperatureError" class="error"></div>
+
+      <input type="number" id="humidity" placeholder="Humidity (%)" />
+      <div id="humidityError" class="error"></div>
+
+      <button type="submit" class="btn">Predict</button>
+    </form>
+
+    <div id="result"></div>
   </div>
 
   <script>
-    document.getElementById("customForm").addEventListener("submit", async function(e) {
+    const gas = document.getElementById("gas");
+    const temperature = document.getElementById("temperature");
+    const humidity = document.getElementById("humidity");
+
+    const gasError = document.getElementById("gasError");
+    const temperatureError = document.getElementById("temperatureError");
+    const humidityError = document.getElementById("humidityError");
+
+    let touched = {
+      gas: false,
+      temperature: false,
+      humidity: false,
+    };
+
+    gas.addEventListener("input", () => {
+      touched.gas = true;
+      validateGas();
+    });
+
+    temperature.addEventListener("input", () => {
+      touched.temperature = true;
+      validateTemperature();
+    });
+
+    humidity.addEventListener("input", () => {
+      touched.humidity = true;
+      validateHumidity();
+    });
+
+    function validateGas() {
+      if (!touched.gas) return;
+      const value = parseFloat(gas.value);
+      gasError.textContent = (isNaN(value) || value < 0 || value > 500)
+        ? "Gas value must be between 0–500 ppm."
+        : "";
+    }
+
+    function validateTemperature() {
+      if (!touched.temperature) return;
+      const value = parseFloat(temperature.value);
+      temperatureError.textContent = (isNaN(value) || value < 0 || value > 50)
+        ? "Temperature must be between 0–50°C."
+        : "";
+    }
+
+    function validateHumidity() {
+      if (!touched.humidity) return;
+      const value = parseFloat(humidity.value);
+      humidityError.textContent = (isNaN(value) || value < 0 || value > 100)
+        ? "Humidity must be between 0–100%."
+        : "";
+    }
+
+    document.getElementById("sensorForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-      const methane = parseFloat(document.getElementById("methane").value);
-      const temperature = parseFloat(document.getElementById("temperature").value);
-      const humidity = parseFloat(document.getElementById("humidity").value);
+      touched.gas = touched.temperature = touched.humidity = true;
+      validateGas();
+      validateTemperature();
+      validateHumidity();
 
-      const response = await fetch("/custom", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ methane, temperature, humidity })
-      });
+      if (
+        !gasError.textContent &&
+        !temperatureError.textContent &&
+        !humidityError.textContent
+      ) {
+        const methane = parseFloat(gas.value);
+        const temp = parseFloat(temperature.value);
+        const hum = parseFloat(humidity.value);
 
-      const data = await response.json();
+        try {
+          const response = await fetch("/custom", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              methane,
+              temperature: temp,
+              humidity: hum,
+            }),
+          });
 
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerText = "Predicted Freshness Status: " + data.prediction;
-      resultDiv.style.display = 'block';
+          const data = await response.json();
+
+          const resultDiv = document.getElementById("result");
+          resultDiv.innerText = "Predicted Freshness Status: " + data.prediction;
+          resultDiv.style.display = 'block';
+        } catch (error) {
+          console.error("Error:", error);
+          const resultDiv = document.getElementById("result");
+          resultDiv.innerText = "Error fetching prediction.";
+          resultDiv.style.display = 'block';
+        }
+      }
     });
   </script>
 
