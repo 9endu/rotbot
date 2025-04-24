@@ -6,12 +6,14 @@ from PIL import Image
 import torch
 import pyrebase
 from torchvision import models, transforms
-
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory,flash
+from email.mime.text import MIMEText
+import smtplib
 
 # Firebase (if used elsewhere in your app)
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db,initialize_app
 
 # Optional utilities (if you still use them in your app)
 import datetime
@@ -23,6 +25,9 @@ import joblib
 
 # Initialize Flask app
 app = Flask(__name__)
+load_dotenv()
+sender = os.getenv("GMAIL_USER")
+password = os.getenv("GMAIL_APP_PASSWORD")
 app.secret_key ='a3443ca5af1d56ae7bd937cc8d2c462d'
 
 ADMIN_EMAIL = 'admin@example.com'
@@ -152,43 +157,74 @@ def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
 
-        # Access the 'companies' node in the Firebase Realtime Database
-        companies_ref = db.reference('companies')  
-        companies = companies_ref.get()  # Get all companies data
+        companies_ref = db.reference('companies')
+        companies = companies_ref.get()
 
-        # Iterate through the companies to check if the email exists
         for company_key, company_data in companies.items():
             if company_data.get('email') == email:
-                return render_template('reset_password.html', email=email)
+                reset_link = url_for('reset_password', email=email, _external=True)
+                send_email(
+                    to=email,
+                    subject="Reset Your Password",
+                    body=f"Click the link to reset your password: {reset_link}"
+                )
+                return "Password reset email sent. Please check your inbox."
 
         return "Email not found. Try again."
 
     return render_template('forgot_password.html')
 
 
-@app.route('/reset-password', methods=['POST'])
+@app.route('/reset-password', methods=['GET', 'POST'])
 def reset_password():
-    email = request.form['email']
-    new_password = request.form['new_password']
+    if request.method == 'GET':
+        email = request.args.get('email')
+        if email:
+            return render_template('reset_password.html', email=email)
+        return "Invalid reset link."
 
-    # Access the 'companies' node in the Firebase Realtime Database
-    companies_ref = db.reference('companies')
-    companies = companies_ref.get()  # Get all companies data
+    elif request.method == 'POST':
+        email = request.form['email']
+        new_password = request.form['new_password']
 
-    # Iterate through the companies to find the email and update the password
-    for company_key, company_data in companies.items():
-        if company_data.get('email') == email:
-            # Update the password for the company
-            company_ref = companies_ref.child(company_key)  # Reference to the specific company
-            company_ref.update({
-                "password": new_password
-            })
+        companies_ref = db.reference('companies')
+        companies = companies_ref.get()
 
-            # Redirect to login.html with a success message
-            return redirect(url_for('login', success_message="Password updated successfully"))
+        for company_key, company_data in companies.items():
+            if company_data.get('email') == email:
+                company_ref = companies_ref.child(company_key)
+                company_ref.update({
+                    "password": new_password
+                })
+                return redirect(url_for('login', success_message="Password updated successfully"))
 
-    return "Something went wrong."
+        return "Something went wrong."
 
+def send_email(to, subject, body):
+    sender = os.getenv("GMAIL_USER")
+    password = os.getenv("GMAIL_APP_PASSWORD")
+    print(f"Sender: {sender}, Password: {password}")
+    
+    if not all([sender, password]):
+        raise ValueError("Email credentials not configured")
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender
+    msg["To"] = to
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender, password)
+            server.send_message(msg)
+        return True
+    except smtplib.SMTPAuthenticationError:
+        print("SMTP Authentication Failed. Check your credentials.")
+        return False
+    except Exception as e:
+        print(f"Email sending failed: {str(e)}")
+        return False
+    
 @app.route('/profile')
 def profile():
     if 'user' not in session:
