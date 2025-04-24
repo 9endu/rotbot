@@ -151,12 +151,10 @@ def signup():
         return redirect('/login')  # Redirect to login page after signup
     return render_template('signup.html')
 
-
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
-
         companies_ref = db.reference('companies')
         companies = companies_ref.get()
 
@@ -168,9 +166,9 @@ def forgot_password():
                     subject="Reset Your Password",
                     body=f"Click the link to reset your password: {reset_link}"
                 )
-                return "Password reset email sent. Please check your inbox."
+                return render_template('forgot_password.html', message="success")
 
-        return "Email not found. Try again."
+        return render_template('forgot_password.html', message="not_found")
 
     return render_template('forgot_password.html')
 
