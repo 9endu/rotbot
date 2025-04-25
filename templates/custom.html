@@ -140,13 +140,13 @@
       <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
       <h2>Custom Sensor Prediction</h2>
       <form id="sensorForm">
-        <input type="number" id="methane" placeholder="Methane Value (ppm)" />
+        <input type="number" id="methane" placeholder="Methane Value (ppm)" step="any" />
         <div id="methaneError" class="error"></div>
 
-        <input type="number" id="temperature" placeholder="Temperature (°C)" />
+        <input type="number" id="temperature" placeholder="Temperature (°C)" step="any" />
         <div id="temperatureError" class="error"></div>
 
-        <input type="number" id="humidity" placeholder="Humidity (%)" />
+        <input type="number" id="humidity" placeholder="Humidity (%)" step="any" />
         <div id="humidityError" class="error"></div>
 
         <button type="submit" class="btn" id="predictBtn">Predict</button>
@@ -174,6 +174,19 @@
       humidity: false,
     };
 
+    // Define the temperature-humidity relationship rules
+    const getMinHumidityForTemperature = (temp) => {
+      // Get the floor value for temperature ranges
+      const floorTemp = Math.floor(temp);
+      
+      // Handle decimal values by using the floor temperature
+      if (floorTemp >= 27 && floorTemp <= 33) return 61; // 27-33.999...°C → 61%
+      if (floorTemp === 34) return 62;                   // 34-34.999...°C → 62%
+      if (floorTemp >= 35 && floorTemp <= 37) return 63; // 35-37.999...°C → 63%
+      
+      return null; // Outside valid range
+    };
+
     gas.addEventListener("input", () => {
       touched.gas = true;
       validateGas();
@@ -182,6 +195,8 @@
     temperature.addEventListener("input", () => {
       touched.temperature = true;
       validateTemperature();
+      // When temperature changes, validate humidity too
+      if (touched.humidity) validateHumidity();
     });
 
     humidity.addEventListener("input", () => {
@@ -200,17 +215,49 @@
     function validateTemperature() {
       if (!touched.temperature) return;
       const value = parseFloat(temperature.value);
-      temperatureError.textContent = (isNaN(value) || value < 0 || value > 50)
-        ? "Temperature must be between 0–50°C."
-        : "";
+      
+      if (isNaN(value)) {
+        temperatureError.textContent = "Please enter a valid temperature.";
+        return;
+      }
+      
+      const minTemp = 27;
+      const maxTemp = 37;
+      
+      if (value < minTemp || value > maxTemp) {
+        temperatureError.textContent = `Temperature must be between ${minTemp}–${maxTemp}°C.`;
+      } else {
+        temperatureError.textContent = "";
+      }
     }
 
     function validateHumidity() {
       if (!touched.humidity) return;
-      const value = parseFloat(humidity.value);
-      humidityError.textContent = (isNaN(value) || value < 0 || value > 100)
-        ? "Humidity must be between 0–100%."
-        : "";
+      const tempValue = parseFloat(temperature.value);
+      const humValue = parseFloat(humidity.value);
+      
+      if (isNaN(humValue)) {
+        humidityError.textContent = "Please enter a valid humidity value.";
+        return;
+      }
+      
+      // First check basic range
+      if (humValue < 0 || humValue > 100) {
+        humidityError.textContent = "Humidity must be between 0–100%.";
+        return;
+      }
+      
+      // Then check the temperature-humidity relationship if temperature is valid
+      if (!isNaN(tempValue)) {
+        const requiredMinHumidity = getMinHumidityForTemperature(tempValue);
+        if (requiredMinHumidity !== null && humValue < requiredMinHumidity) {
+          const floorTemp = Math.floor(tempValue);
+          humidityError.textContent = `For temperatures ${floorTemp}–${floorTemp+1}°C, humidity must be at least ${requiredMinHumidity}%.`;
+          return;
+        }
+      }
+      
+      humidityError.textContent = "";
     }
 
     document.getElementById("sensorForm").addEventListener("submit", async function (e) {

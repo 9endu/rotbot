@@ -9,8 +9,10 @@ from torchvision import models, transforms
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory,flash
 from email.mime.text import MIMEText
-import smtplib
+from torchvision.models.detection import maskrcnn_resnet50_fpn, MaskRCNN_ResNet50_FPN_Weights
 
+import smtplib
+import pandas as pd
 # Firebase (if used elsewhere in your app)
 import firebase_admin
 from firebase_admin import credentials, db,initialize_app
@@ -29,6 +31,12 @@ load_dotenv()
 sender = os.getenv("GMAIL_USER")
 password = os.getenv("GMAIL_APP_PASSWORD")
 app.secret_key ='a3443ca5af1d56ae7bd937cc8d2c462d'
+app.config['SESSION_PERMANENT'] = False
+from itsdangerous import URLSafeTimedSerializer
+
+def generate_reset_token(email):
+    serializer = URLSafeTimedSerializer(app.secret_key)
+    return serializer.dumps(email, salt='password-reset-salt')
 
 ADMIN_EMAIL = 'admin@example.com'
 ADMIN_PASSWORD = 'adminpass'
@@ -102,27 +110,59 @@ def read_serial_and_upload():
 # Start serial reading in a background thread
 threading.Thread(target=read_serial_and_upload, daemon=True).start()
 
+temp_humidity_map = {
+    27: 61,
+    28: 61,
+    29: 61,
+    30: 61,
+    31: 61,
+    32: 61,
+    33: 58,
+    34: 62,
+    35: 63,
+    36: 63,
+    37: 63
+}
+
+
 # --- Firebase Prediction ---
 def predict_from_latest_data():
     ref = db.reference('sensor_readings')
     data = ref.order_by_key().limit_to_last(1).get()
 
     if not data:
-        return None
+        return None, "No sensor data found"
 
     for key in data:
         entry = data[key]
         methane = entry['methane']
         temp = entry['temperature']
         hum = entry['humidity']
-
-        # Preprocess
-        scaled = scaler.transform([[temp, hum]])
-        input_array = np.array([[np.log1p(methane)] + list(scaled[0])])  # Apply log1p for methane
-        prediction = model.predict(input_array)
+        if not (27 <= temp <= 37):
+            return None, f"❌ Temperature must be between 27-37°C (got {temp:.1f}°C)"
+        # Get nearest temperature threshold
+        temp_rounded = round(temp)
+        min_humidity = temp_humidity_map.get(temp_rounded)
+        
+        # Humidity validation
+        if hum < min_humidity:
+            return None, (
+                f"❌ Humidity too low for {temp:.1f}°C\n"
+                f"- Current: {hum:.1f}%\n"
+                f"- Required minimum: {min_humidity}%"
+            )
+        elif hum > 100:  # Optional upper bound
+            return None, f"❌ Humidity cannot exceed 100% (got {hum:.1f}%)"
+        
+        # === Preprocess and Predict ===
+        methane_log = np.log1p(methane)
+        features = pd.DataFrame([[methane_log, temp, hum]], columns=['methane', 'temperature', 'humidity'])
+        features_scaled = scaler.transform(features)
+        prediction = model.predict(features_scaled)
         predicted_class = le.inverse_transform(prediction)[0]
 
-        return predicted_class
+        return predicted_class, None
+
 @app.route('/')
 def home():
     # If user is logged in, redirect to homepage, else show login page
@@ -151,6 +191,8 @@ def signup():
         return redirect('/login')  # Redirect to login page after signup
     return render_template('signup.html')
 
+
+
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
@@ -171,6 +213,7 @@ def forgot_password():
         return render_template('forgot_password.html', message="not_found")
 
     return render_template('forgot_password.html')
+
 
 
 @app.route('/reset-password', methods=['GET', 'POST'])
@@ -383,54 +426,68 @@ from firebase_admin import credentials, db
 # --- Firebase Prediction Route ---
 @app.route('/firebase', methods=['GET', 'POST'])
 def firebase_predict():
-    prediction = predict_from_latest_data()
+    try:
+        # Get prediction from latest data
+        prediction, error = predict_from_latest_data()
+        
+        if error:
+            return render_template('firebase.html', error=error)
 
-    if prediction:
-        # Fetch the latest sensor data from Firebase
+        if not prediction:
+            return render_template('firebase.html', error="No prediction available")
+
+        # Fetch latest sensor data
         ref = db.reference('sensor_readings')
         data = ref.order_by_key().limit_to_last(1).get()
+        
+        if not data:
+            return render_template('firebase.html', error="No sensor data available")
 
-        if data:
-            latest_data = next(iter(data.values()))
-            methane = latest_data['methane']
-            temp = latest_data['temperature']
-            hum = latest_data['humidity']
+        latest_data = next(iter(data.values()))
+        methane = latest_data['methane']
+        temp = latest_data['temperature']
+        hum = latest_data['humidity']
 
-            # Get the logged-in user's email
-            user_email = session.get('user')
-            if not user_email:
-                return render_template('firebase.html', error="User not logged in")
+        # Check user session
+        if 'user' not in session:
+            return render_template('firebase.html', error="User not logged in")
 
-            email_key = user_email.replace('.', ',')  # Firebase key-friendly format
+        # Prepare Firebase path
+        email_key = session['user'].replace('.', ',')
+        data_ref = db.reference(f'companies/{email_key}/history/firebase_data')
 
-            # Reference to user's firebase_data history
-            data_ref = db.reference(f'companies/{email_key}/history/firebase_data')
+        # Check for duplicate entries
+        existing_entries = data_ref.order_by_key().limit_to_last(1).get()
+        if existing_entries:
+            last_entry = next(iter(existing_entries.values()))
+            if (last_entry['methane'] == methane and
+                last_entry['temperature'] == temp and
+                last_entry['humidity'] == hum):
+                return render_template('firebase.html', 
+                                    prediction=prediction, 
+                                    methane=methane, 
+                                    temperature=temp, 
+                                    humidity=hum)
 
-            # Check the last saved entry
-            existing_entries = data_ref.order_by_key().limit_to_last(1).get()
-            if existing_entries:
-                last_entry = next(iter(existing_entries.values()))
-                if (last_entry['methane'] == methane and
-                    last_entry['temperature'] == temp and
-                    last_entry['humidity'] == hum):
-                    # No change in data, do not log again
-                    return render_template('firebase.html', prediction=prediction, methane=methane, temperature=temp, humidity=hum)
+        # Save new prediction
+        prediction_data = {
+            "methane": methane,
+            "temperature": temp,
+            "humidity": hum,
+            "output": prediction,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+        data_ref.push(prediction_data)
 
-            # New data detected — log it
-            prediction_data = {
-                "methane": methane,
-                "temperature": temp,
-                "humidity": hum,
-                "output": prediction,
-                "timestamp": datetime.datetime.now().isoformat()
-            }
+        return render_template('firebase.html', 
+                            prediction=prediction, 
+                            methane=methane, 
+                            temperature=temp, 
+                            humidity=hum)
 
-            data_ref.push(prediction_data)  # Push new prediction entry
-
-            return render_template('firebase.html', prediction=prediction, methane=methane, temperature=temp, humidity=hum)
-
-    return render_template('firebase.html', error="No data available for prediction.")
-
+    except Exception as e:
+        app.logger.error(f"Firebase prediction error: {str(e)}")
+        return render_template('firebase.html', error="An unexpected error occurred")
 @app.route('/track_history')
 def track_history():
     # Ensure the user is logged in
@@ -462,24 +519,33 @@ def track_history():
         print(f"Error fetching history data: {e}")
         return "An error occurred while loading history data.", 500
 
+import pandas as pd
+
 # --- Custom Prediction Page Route ---
 @app.route('/custom', methods=['GET', 'POST'])
 def custom_predict():
     if request.method == 'POST':
         # Get JSON data from the request
         data = request.get_json()
-
+        if not data:
+                return jsonify({'error': 'No data received'}), 400
+        
+        methane = float(data['methane'])  # Ensure numeric
+        temp = float(data['temperature'])
+        hum = float(data['humidity'])
         # Log transformation on methane and fetch other values
-        methane = np.log1p(data['methane'])  # Apply log transformation
-        temperature = data['temperature']
-        humidity = data['humidity']
-
+        methane_log = np.log1p(methane)  # Apply log transformation
+        
         # Preprocess
-        scaled = scaler.transform([[temperature, humidity]])
-        input_array = np.array([[methane] + list(scaled[0])])
+        input_features = pd.DataFrame(
+                [[methane_log, temp, hum]],
+                columns=['methane', 'temperature', 'humidity']  # Must match training columns
+            )
+        # Scale ALL features (same as training)
+        scaled_features = scaler.transform(input_features) 
 
         # Make prediction
-        prediction = model.predict(input_array)
+        prediction = model.predict(scaled_features)
         predicted_class = le.inverse_transform(prediction)[0]
 
         # Log prediction
@@ -499,8 +565,8 @@ def custom_predict():
         # Prepare data for saving to Firebase
         prediction_data = {
             "methane": data['methane'],  # Original methane value
-            "temperature": temperature,
-            "humidity": humidity,
+            "temperature": temp,
+            "humidity": hum,
             "output": predicted_class,
             "timestamp": datetime.datetime.now().isoformat()  # Current timestamp
         }
@@ -582,9 +648,10 @@ def predict_from_latest_data_for_shelflife():
         hum = entry['humidity']
 
         print(f"📊 Latest Data - Methane: {methane}, Temp: {temp}, Humidity: {hum}")  # Log the data
-        
+        input_data = pd.DataFrame([[methane, temp, hum]], 
+                            columns=['methane', 'temperature', 'humidity'])
+        scaled = scaler.transform(input_data)
         # Preprocess
-        scaled = scaler.transform([[temp, hum]])
         input_array = np.array([[np.log1p(methane)] + list(scaled[0])])  # Apply log1p for methane
         prediction = model1.predict(input_array)
 
@@ -618,8 +685,9 @@ def upload_image():
         # Start timer
         start_time = time.time()
 
+        weights = MaskRCNN_ResNet50_FPN_Weights.DEFAULT
         # Load model
-        model = models.detection.maskrcnn_resnet50_fpn(pretrained=True)
+        model = maskrcnn_resnet50_fpn(weights=weights)
         model.eval()
 
         # Transform and predict
