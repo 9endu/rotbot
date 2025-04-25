@@ -214,6 +214,8 @@
       </div>
       <button class="button" type="submit">Upload & Detect</button>
     </form>
+    <div id="uploadMessage" style="text-align: center; color: #00ffaa; margin-top: 10px; text-shadow: 0 0 5px #00ffaa;"></div>
+
 
     <hr>
 
@@ -263,11 +265,29 @@
             captureButton.disabled = true;
         });
 
-  // Replace your current form submit event listener with this:
-form.addEventListener("submit", function (e) {
+    // Event listener for file selection
+    imageInput.addEventListener("change", function () {
+        if (imageInput.files.length > 0) {
+            document.getElementById("uploadMessage").textContent = "✅ File selected. Ready to upload!";
+        } else {
+            document.getElementById("uploadMessage").textContent = "";
+        }
+    });
+
+    // Replace your current form submit event listener with this:
+    form.addEventListener("submit", function (e) {
     e.preventDefault();
-    const formData = new FormData(form);
+
+    // Check if a file is selected
+    if (imageInput.files.length === 0) {
+        document.getElementById("uploadMessage").textContent = "❌ Please select an image file before uploading.";
+        return;  // Stop form submission if no file is selected
+    }
+
+    // Show loading overlay and progress bar
     showLoading();
+
+    const formData = new FormData(form);
 
     fetch("/upload_image", {
         method: "POST",
@@ -281,26 +301,40 @@ form.addEventListener("submit", function (e) {
 
         setTimeout(() => {
             loadingOverlay.style.display = "none";
-            
+
             // Create a temporary div to parse the HTML response
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
-            
+
             // Find the result box in the response
             const responseResult = tempDiv.querySelector('.result-box');
-            
+
             if (responseResult) {
-                // Update our result box with just the content from the response
+                // Update our result box with the content from the response
                 resultBox.innerHTML = responseResult.innerHTML;
             } else {
                 resultBox.innerHTML = "No result found in response";
             }
+
+            // Display success message after upload
+            document.getElementById("uploadMessage").textContent = "✅ Image uploaded successfully!";
+            setTimeout(() => {
+                document.getElementById("uploadMessage").textContent = "";
+            }, 5000);
         }, 400);
+
     })
     .catch(error => {
         clearInterval(progressInterval);
         loadingOverlay.style.display = "none";
         resultBox.innerHTML = "Prediction failed. Please try again.";
+
+        // Display error message after upload failure
+        document.getElementById("uploadMessage").textContent = "❌ Failed to upload image. Please try again.";
+        setTimeout(() => {
+            document.getElementById("uploadMessage").textContent = "";
+        }, 5000);
+
         console.error("Error:", error);
     });
 });
@@ -348,6 +382,7 @@ form.addEventListener("submit", function (e) {
         imageInput.value = "";
     });
 </script>
+
 
   
 </body>
