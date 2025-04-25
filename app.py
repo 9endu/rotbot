@@ -233,6 +233,11 @@ def profile():
 
     return render_template('profile.html', user=user_data)
 
+@app.route('/about_us')
+def about_us():
+    return render_template('aboutpage.html')
+
+
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
     if 'user' not in session:
