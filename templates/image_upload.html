@@ -20,19 +20,20 @@
       padding: 20px;
     }
     .container {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(0, 20, 30, 0.85);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      box-shadow: 0 0 25px rgba(0, 255, 170, 0.2), 0 0 45px rgba(0, 255, 170, 0.1);
-      padding: 30px;
-      animation: fadeIn 0.8s ease-in-out;
-    }
+  width: 100%;
+  max-width: 900px;
+  background: rgba(0, 20, 30, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 255, 170, 0.2), 0 0 45px rgba(0, 255, 170, 0.1);
+  padding: 30px;
+  animation: fadeIn 0.5s ease-in-out; /* Smooth fade only */
+  opacity: 1; /* Ensure it ends at full visibility */
+}
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
+  from { opacity: 0; }  /* No scale transform */
+  to { opacity: 1; }
+}
     h1 {
       text-align: center;
       color: #00ffaa;
@@ -204,7 +205,7 @@
     <a href="/" class="home-btn"><i class="fas fa-home"></i> Homepage</a>
     <h1>Shelf Life Prediction</h1>
 
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" method="post" enctype="multipart/form-data" action='/upload_image'>
       <h3>Select an image:</h3>
       <div class="file-input-wrapper">
         <label class="file-label">Choose File
@@ -248,72 +249,106 @@
     const form = document.getElementById("uploadForm");
     const imageInput = document.getElementById("imageUpload");
     const loadingOverlay = document.getElementById("loadingOverlay");
+    const progressBar = document.getElementById("progressBar");
+    const progressPercent = document.getElementById("progressPercent");
+
+    let progressInterval;
 
     navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        console.error("Webcam access error:", err);
-        captureButton.disabled = true;
-      });
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error("Webcam access error:", err);
+            captureButton.disabled = true;
+        });
 
-    form.addEventListener("submit", function (e) {
-      showLoading();
+  // Replace your current form submit event listener with this:
+form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const formData = new FormData(form);
+    showLoading();
+
+    fetch("/upload_image", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.text())
+    .then(html => {
+        clearInterval(progressInterval);
+        progressBar.style.width = "100%";
+        progressPercent.textContent = "100%";
+
+        setTimeout(() => {
+            loadingOverlay.style.display = "none";
+            
+            // Create a temporary div to parse the HTML response
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Find the result box in the response
+            const responseResult = tempDiv.querySelector('.result-box');
+            
+            if (responseResult) {
+                // Update our result box with just the content from the response
+                resultBox.innerHTML = responseResult.innerHTML;
+            } else {
+                resultBox.innerHTML = "No result found in response";
+            }
+        }, 400);
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        loadingOverlay.style.display = "none";
+        resultBox.innerHTML = "Prediction failed. Please try again.";
+        console.error("Error:", error);
     });
+});
 
     captureButton.addEventListener("click", function () {
-      const context = canvas.getContext("2d");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const context = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      canvas.toBlob(blob => {
-        const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        imageInput.files = dataTransfer.files;
+        canvas.toBlob(blob => {
+            const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            imageInput.files = dataTransfer.files;
 
-        showLoading();
-        form.submit();
-      }, "image/jpeg");
+            form.dispatchEvent(new Event("submit"));
+        }, "image/jpeg");
     });
 
     function showLoading() {
-  loadingOverlay.style.display = "block";
-  animateProgress();
-}
-
-function animateProgress() {
-  const bar = document.getElementById("progressBar");
-  const percent = document.getElementById("progressPercent");
-  let width = 0;
-
-  const interval = setInterval(() => {
-    if (width >= 100) {
-      clearInterval(interval);
-    } else {
-      width += Math.random() * 2; // Randomize a bit for smoother animation
-      if (width > 100) width = 100;
-      bar.style.width = width + "%";
-      percent.textContent = Math.floor(width) + "%";
+        loadingOverlay.style.display = "block";
+        progressBar.style.width = "0%";
+        progressPercent.textContent = "0%";
+        animateProgress();
     }
-  }, 30); // Speed of update
-}
 
-window.addEventListener("pageshow", function (event) {
-  loadingOverlay.style.display = "none";
-  const bar = document.getElementById("progressBar");
-  const percent = document.getElementById("progressPercent");
-  if (bar) bar.style.width = "0%";
-  if (percent) percent.textContent = "0%";
-});
+    function animateProgress() {
+        let width = 0;
+        progressInterval = setInterval(() => {
+            if (width >= 95) return; // cap at 95% until server response
+            width += Math.random() * 1.5;
+            progressBar.style.width = width + "%";
+            progressPercent.textContent = Math.floor(width) + "%";
+        }, 50); // speed of update
+    }
 
-window.addEventListener("beforeunload", () => {
-  imageInput.value = "";
-});
+    window.addEventListener("pageshow", function () {
+        loadingOverlay.style.display = "none";
+        progressBar.style.width = "0%";
+        progressPercent.textContent = "0%";
+    });
 
+    window.addEventListener("beforeunload", () => {
+        imageInput.value = "";
+    });
+</script>
 
-  </script>
+  
 </body>
 </html>
