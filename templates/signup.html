@@ -65,6 +65,25 @@
       box-shadow: none;
     }
 
+    select {
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #555;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #2c2c2c;
+  color: #f0f0f0;
+  transition: 0.3s;
+  outline: none;
+}
+
+select:focus {
+  border-color: #4ef1c1;
+  background-color: #333;
+  outline: none;
+  box-shadow: none;
+}
+
     button {
       background: #4ef1c1;
       color: white;
@@ -155,9 +174,24 @@
     <form method="POST" action="/signup">
         <input type="text" name="company_name" placeholder="Company Name" required minlength="2" style="width: 100%;">
         <input type="text" name="industry" placeholder="Industry Type" required>
-        <input type="text" id="location" name="location" placeholder="Location / Region" required>
-        <ul id="suggestions"></ul>
-
+        <select id="location" name="location" required style="margin-bottom: 1rem; padding: 0.8rem 1rem; border-radius: 8px; background-color: #2c2c2c; color: #f0f0f0; border: 1px solid #555; font-size: 1rem;">
+          <option value="">Select District</option>
+          <option value="Alappuzha">Alappuzha</option>
+          <option value="Ernakulam">Ernakulam</option>
+          <option value="Idukki">Idukki</option>
+          <option value="Kannur">Kannur</option>
+          <option value="Kasaragod">Kasaragod</option>
+          <option value="Kollam">Kollam</option>
+          <option value="Kottayam">Kottayam</option>
+          <option value="Kozhikode">Kozhikode</option>
+          <option value="Malappuram">Malappuram</option>
+          <option value="Palakkad">Palakkad</option>
+          <option value="Pathanamthitta">Pathanamthitta</option>
+          <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+          <option value="Thrissur">Thrissur</option>
+          <option value="Wayanad">Wayanad</option>
+        </select>
+        
         <input type="text" name="name" placeholder="Your Name" required pattern="[A-Za-z\s]{2,}">
         <input type="email" name="email" placeholder="Email Address" required>
         <input type="tel" name="phone" placeholder="Phone Number" required pattern="[1-9][0-9]{9}">
@@ -170,41 +204,25 @@
   </div>
 
   <script>
-    document.getElementById('location').addEventListener('input', function (e) {
-      const query = e.target.value.trim();
-      const suggestions = document.getElementById('suggestions');
-      suggestions.innerHTML = '';
-
-      if (query.length > 2) {
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1`)
-          .then(response => response.json())
-          .then(data => {
-            if (data.length === 0) {
-              suggestions.innerHTML = '<li>No locations found</li>';
-            } else {
-              data.forEach(location => {
-                const listItem = document.createElement('li');
-                listItem.textContent = location.display_name;
-                listItem.addEventListener('click', () => {
-                  document.getElementById('location').value = location.display_name;
-                  suggestions.innerHTML = '';
-                });
-                suggestions.appendChild(listItem);
-              });
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching location data:', error);
-            suggestions.innerHTML = '<li>Error retrieving data</li>';
-          });
-      }
-    });
-
+  
     const form = document.querySelector("form");
-
+  
+    const showError = (message) => {
+      let errorBox = document.getElementById("form-error");
+      if (!errorBox) {
+        errorBox = document.createElement("div");
+        errorBox.id = "form-error";
+        errorBox.style.color = "#ff5e5e";
+        errorBox.style.marginBottom = "1rem";
+        errorBox.style.textAlign = "center";
+        form.insertBefore(errorBox, form.firstChild);
+      }
+      errorBox.textContent = message;
+    };
+  
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-
+  
       const companyName = form.company_name.value.trim();
       const industry = form.industry.value.trim();
       const location = form.location.value.trim();
@@ -212,51 +230,56 @@
       const email = form.email.value.trim();
       const phone = form.phone.value.trim();
       const password = form.password.value;
-
+  
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const phoneRegex = /^[1-9]\d{9}$/;
       const nameRegex = /^[A-Za-z\s]{2,}$/;
       const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{6,}$/;
-
-
+  
       if (companyName.length < 2) {
-        alert("Company name must be at least 2 characters.");
+        showError("Company name must be at least 2 characters.");
         return;
       }
-
+  
       if (industry === "") {
-        alert("Industry type cannot be empty.");
+        showError("Industry type cannot be empty.");
         return;
       }
-
+  
       if (location === "") {
-        alert("Location/Region cannot be empty.");
-        return;
-      }
+  showError("Please select a district from the dropdown.");
+  return;
+}
 
+  
       if (!nameRegex.test(name)) {
-        alert("Name must be at least 2 characters and contain only letters and spaces.");
+        showError("Name must be at least 2 characters and contain only letters and spaces.");
         return;
       }
-
+  
       if (!emailRegex.test(email)) {
-        alert("Please enter a valid email address.");
+        showError("Please enter a valid email address.");
         return;
       }
-
+  
       if (!phoneRegex.test(phone)) {
-        alert("Phone number must be 10 digits and cannot start with 0.");
+        showError("Phone number must be 10 digits and cannot start with 0.");
         return;
       }
-
+  
       if (!passwordRegex.test(password)) {
-        alert("Password must be at least 6 characters and contain at least one letter, one number, and one special character.");
+        showError("Password must be at least 6 characters and contain at least one letter, one number, and one special character.");
         return;
       }
-
+  
+      // No errors: clear message and show loader
+      const errorBox = document.getElementById("form-error");
+      if (errorBox) errorBox.textContent = "";
+  
       document.querySelector('.loader').style.display = 'flex';
       form.submit();
     });
   </script>
+  
 </body>
 </html>
